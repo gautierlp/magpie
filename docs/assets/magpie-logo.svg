@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/>
+    </filter>
+  </defs>
+  <g filter="url(#ink)" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+    <!-- tail -->
+    <path d="M238 318 C192 364 146 412 84 466 L96 482 L110 474 L122 486 C178 432 226 384 270 338 Z" fill="#000" stroke-width="6"/>
+    <!-- body and head, black -->
+    <path d="M300 128 C340 112 382 132 388 168 C392 190 380 206 362 216
+             C392 250 396 300 362 330 C330 356 280 350 248 330
+             C222 312 214 272 232 238 C248 210 272 196 286 186
+             C278 160 282 138 300 128 Z" fill="#000" stroke-width="6"/>
+    <!-- white belly -->
+    <path d="M356 228 C380 262 378 304 352 324 C330 340 296 338 276 326
+             C306 318 334 296 342 262 C346 248 350 236 356 228 Z" fill="#fff" stroke-width="5"/>
+    <!-- white shoulder patch -->
+    <path d="M250 262 C270 240 300 232 322 240 C304 254 280 270 252 280 Z" fill="#fff" stroke-width="5"/>
+    <!-- beak -->
+    <path d="M384 160 L430 170 L386 182 Z" fill="#000" stroke-width="6"/>
+    <!-- eye -->
+    <circle cx="350" cy="156" r="7" fill="#fff" stroke="none"/>
+    <!-- legs and perch -->
+    <path d="M300 344 L294 396 M326 342 L324 396" fill="none" stroke-width="7"/>
+    <path d="M196 400 C260 394 340 398 430 394" fill="none" stroke-width="9"/>
+    <!-- the shiny thing in the beak -->
+    <path d="M446 160 L452 172 L464 176 L452 180 L446 192 L440 180 L428 176 L440 172 Z" fill="#000" stroke-width="3"/>
+    <path d="M470 150 L478 142 M474 196 L482 204 M446 140 L446 128" fill="none" stroke-width="5"/>
+  </g>
+  <!-- ink spots -->
+  <g fill="#000">
+    <circle cx="140" cy="120" r="3"/><circle cx="160" cy="98" r="2"/><circle cx="420" cy="440" r="3"/>
+    <circle cx="448" cy="428" r="2"/><circle cx="210" cy="180" r="2"/><circle cx="96" cy="300" r="2.5"/>
+    <circle cx="390" cy="96" r="2"/><circle cx="470" cy="300" r="2.5"/>
+  </g>
+</svg>

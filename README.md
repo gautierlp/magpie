@@ -74,8 +74,7 @@ A magpie saw it all: the commits, the sessions, the calls, the mail you sent. Ty
 `/daily` and it writes **Did:**, **Blocked:** and **Next:** into your note, one
 bullet per project. You fix the draft in a minute.
 
-It steals. It does not forge. Every bullet comes from a trace, and the bullets you
-wrote yourself stay.
+It steals. It does not forge.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

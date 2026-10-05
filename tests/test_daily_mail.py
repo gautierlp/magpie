@@ -85,3 +85,10 @@ def test_keychain_password_uses_the_security_cli():
 
     assert daily_mail.keychain_password("a@x.com", runner=runner) == "secret"
     assert calls == [["security", "find-generic-password", "-s", "daily-imap", "-a", "a@x.com", "-w"]]
+
+
+def test_keychain_password_returns_none_when_security_is_missing():
+    def runner(cmd, **kwargs):
+        raise FileNotFoundError("security binary not found")
+
+    assert daily_mail.keychain_password("a@x.com", runner=runner) is None

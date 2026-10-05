@@ -14,12 +14,15 @@ SUBJECT_CHARS = 150
 
 def keychain_password(address, runner=subprocess.run):
     """The Google app password stored with `security add-generic-password -s daily-imap`."""
-    result = runner(
-        ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", address, "-w"],
-        capture_output=True, text=True,
-    )
-    secret = result.stdout.strip() if result.returncode == 0 else ""
-    return secret or None
+    try:
+        result = runner(
+            ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", address, "-w"],
+            capture_output=True, text=True,
+        )
+        secret = result.stdout.strip() if result.returncode == 0 else ""
+        return secret or None
+    except OSError:
+        return None
 
 
 def _connect(address, password):
@@ -79,7 +82,10 @@ def gather_mail(accounts, day, password_fn=keychain_password, connect=_connect):
             try:
                 found = sent_for_day(conn, day)
             finally:
-                conn.logout()
+                try:
+                    conn.logout()
+                except (imaplib.IMAP4.error, OSError):
+                    pass
         except imaplib.IMAP4.error:
             status[address] = "error: imap"
             continue

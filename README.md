@@ -19,9 +19,10 @@
   <h1 align="center">magpie</h1>
 
   <p align="center">
-    A magpie picks shiny bits from everywhere and keeps them in one nest.
+    <em>It saw everything. It took the shiny parts. It wrote them down.</em>
     <br />
-    This Claude Code skill does the same with your day.
+    <br />
+    A Claude Code skill that drafts your Obsidian daily note from the traces of your day.
     <br />
     <a href="#usage"><strong>See what it writes »</strong></a>
     <br />
@@ -55,6 +56,7 @@
     <li><a href="#usage">Usage</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#privacy">Privacy</a></li>
+    <li><a href="#faq">FAQ</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -66,20 +68,20 @@
 <!-- ABOUT THE PROJECT -->
 ## About the project
 
-I kept a three-line daily note in Obsidian: what I did, what blocked me, what comes
-next. By 9 pm I could never remember half of what I did. The record already existed,
-though. It sat in commit messages, in Claude Code transcripts, in my calendar, in the
-mail I sent.
+You know the moment. It is 9 pm, the daily note is open, and the cursor blinks next
+to **Did:**. You worked all day. You type "stuff". You close the note.
 
-magpie collects those traces and drafts the note for you. You type `/daily` in the
-evening, it reads the day, and it writes **Did:**, **Blocked:** and **Next:** into
-that day's note. One bullet per project, each linked to the project's card in your
-vault. You then edit the draft, which takes a minute instead of ten.
+Meanwhile, a magpie sat on the windowsill and watched. It saw the fourteen commits.
+It saw the Claude Code session where you finally fixed the sync. It saw the call at
+14:00 and the invoice you sent at 16:12. It took the shiny parts back to its nest.
 
-**Did:** is a record of facts. **Blocked:** and **Next:** are a first guess for you
-to fix. magpie never invents a bullet: each one points back to a log, a commit, a
-session, an event or a mail. If you already wrote some bullets yourself, magpie
-keeps every fact in them and merges them into its draft.
+magpie puts that bird in your Claude Code. Type `/daily` and it writes **Did:**,
+**Blocked:** and **Next:** into the day's note, one bullet per project, each linked
+to the project's card in your vault. You fix the draft in a minute.
+
+It steals. It does not forge. Every bullet comes from a log, a commit, a session, an
+event or a mail you sent. The bullets you already wrote stay: magpie merges them, it
+never drops a fact.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -182,7 +184,15 @@ In any Claude Code session:
 /daily 2026-10-04   # an earlier day
 ```
 
-A draft looks like this:
+### Before / after
+
+What you write at 9 pm:
+
+```markdown
+**Did:** website stuff, some homelab
+```
+
+What the magpie brings back:
 
 ```markdown
 **Did:**
@@ -201,7 +211,8 @@ A draft looks like this:
 ```
 
 If a source is missing (ActivityWatch is off, a mail password is not set), magpie
-says so in one line and drafts from the rest.
+says so in one line and drafts from the rest. A magpie with one eye closed still
+finds the spoons.
 
 You can also run the collector alone and read its JSON, without Claude and without
 writing anything:
@@ -249,6 +260,26 @@ Claude Code message, so treat it as you treat your sessions.
   browsers are dropped, because the exclude list can only filter domains.
 * Transcripts: read, never changed.
 * Passwords: in the Keychain, never in a file.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- FAQ -->
+## FAQ
+
+**Does it read my mail?**
+Only the envelope: who it went to, and the subject. Never the body, and never mail
+you received. Sent mail is what you did; the inbox is what other people want.
+
+**Will it make up things I did not do?**
+No. Each bullet needs a trace behind it. No trace, no bullet. Blocked and Next are a
+first guess, and they say so.
+
+**Does it run on its own every night?**
+No. You call it. A journal you never open is a log file.
+
+**Why a magpie?**
+It collects shiny things from everywhere and keeps them in one place. Also, it never
+asks for permission, and that part we fixed.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

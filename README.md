@@ -68,20 +68,14 @@
 <!-- ABOUT THE PROJECT -->
 ## About the project
 
-You know the moment. It is 9 pm, the daily note is open, and the cursor blinks next
-to **Did:**. You worked all day. You type "stuff". You close the note.
+It is 9 pm. The daily note is open. You worked all day, and you type "stuff".
 
-Meanwhile, a magpie sat on the windowsill and watched. It saw the fourteen commits.
-It saw the Claude Code session where you finally fixed the sync. It saw the call at
-14:00 and the invoice you sent at 16:12. It took the shiny parts back to its nest.
+A magpie saw it all: the commits, the sessions, the calls, the mail you sent. Type
+`/daily` and it writes **Did:**, **Blocked:** and **Next:** into your note, one
+bullet per project. You fix the draft in a minute.
 
-magpie puts that bird in your Claude Code. Type `/daily` and it writes **Did:**,
-**Blocked:** and **Next:** into the day's note, one bullet per project, each linked
-to the project's card in your vault. You fix the draft in a minute.
-
-It steals. It does not forge. Every bullet comes from a log, a commit, a session, an
-event or a mail you sent. The bullets you already wrote stay: magpie merges them, it
-never drops a fact.
+It steals. It does not forge. Every bullet comes from a trace, and the bullets you
+wrote yourself stay.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers-extended-cc:subagent-driven-development (recommended) or superpowers-extended-cc:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A `/daily` Claude Code skill that drafts the Did / Blocked / Next sections of the Obsidian daily note from the day's traceable work.
+**Goal:** magpie, a `/daily` Claude Code skill that drafts the Did / Blocked / Next sections of the Obsidian daily note from the day's traceable work.
 
-**Architecture:** A standalone, open-source repo (`daily-journal`, working name). Seven small stdlib modules in `src/` each gather one source (note sections, git, vault cards and logs, Claude Code sessions, ActivityWatch, sent mail, config). Personal values (time zone, folders, mail accounts, calendars, excluded domains) live in `~/.config/daily-journal/config.json`, never in the code. `src/daily.py` is the CLI: `gather` prints one JSON payload grouped by project card, `write` replaces the three note sections from JSON on stdin. The skill (`skills/daily/SKILL.md`) runs `gather`, reads the calendar through the Google Calendar MCP connector, drafts the bullets, and pipes them to `write`.
+**Architecture:** A standalone, open-source repo (`magpie`). Seven small stdlib modules in `src/` each gather one source (note sections, git, vault cards and logs, Claude Code sessions, ActivityWatch, sent mail, config). Personal values (time zone, folders, mail accounts, calendars, excluded domains) live in `~/.config/magpie/config.json`, never in the code. `src/daily.py` is the CLI: `gather` prints one JSON payload grouped by project card, `write` replaces the three note sections from JSON on stdin. The skill (`skills/daily/SKILL.md`) runs `gather`, reads the calendar through the Google Calendar MCP connector, drafts the bullets, and pipes them to `write`.
 
 **Tech Stack:** Python 3.14 standard library only (`subprocess`, `urllib`, `imaplib`, `email`, `zoneinfo`), pytest, just.
 
@@ -12,7 +12,7 @@
 - Spec: `docs/superpowers/specs/2026-10-05-daily-journal-design.md`. Read it before any task.
 - Stdlib only at runtime. `pytest` is the only dev dependency.
 - Flat imports (`import daily_git`, not `from src import daily_git`): `conftest.py` puts `src/` on `sys.path`.
-- The repo will be public. No personal value (email address, calendar ID, path under a real home folder, time zone) in code, tests or skill text. Personal values go only in `~/.config/daily-journal/config.json`, which is outside the repo.
+- The repo will be public. No personal value (email address, calendar ID, path under a real home folder, time zone) in code, tests or skill text. Personal values go only in `~/.config/magpie/config.json`, which is outside the repo.
 - `src/transcript.py` is a copy of `session_reviewer/src/transcript.py` plus `parse_ts` and `is_injected` (from its `digest.py` and `signals.py`). It is a copy on purpose: the two repos ship separately.
 - Never modify or delete anything under `~/.claude/projects/`. It is read-only input.
 - No em dashes anywhere: code, comments, skill text, generated bullets.
@@ -20,7 +20,7 @@
 - The note sections are exactly `**Did:**`, `**Blocked:**`, `**Next:**`, in that order.
 - The day is the local calendar day in the configured time zone (tests use `Europe/Paris`). Transcript timestamps are UTC and are compared as aware datetimes.
 - Run tests with `just test` (it runs `.venv/bin/pytest -v`). If `.venv` is missing: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`.
-- The repo is `~/projects/personal/daily-journal`. Task 0 creates its base on `main`; Tasks 1 to 10 run in a Superset workspace for this repo, never in the main checkout.
+- The repo is `~/projects/personal/magpie`. Task 0 creates its base on `main`; Tasks 1 to 10 run in a Superset workspace for this repo, never in the main checkout.
 
 **User decisions (already made):**
 - "one bullet per project", with a wikilink to the project card.
@@ -43,7 +43,7 @@
 | `src/daily_sessions.py` | The day's Claude Code sessions, compacted; covered and `/daily` sessions dropped. |
 | `src/daily_aw.py` | ActivityWatch REST reads and the noise and privacy filters. |
 | `src/daily_mail.py` | Sent mail headers over IMAP, Keychain passwords. |
-| `src/daily_config.py` | Load `~/.config/daily-journal/config.json` over the defaults. |
+| `src/daily_config.py` | Load `~/.config/magpie/config.json` over the defaults. |
 | `src/transcript.py` | Claude Code `.jsonl` parser, `parse_ts`, `is_injected` (copied from session_reviewer). |
 | `src/daily.py` | CLI: `gather` (assemble, group by card, size cap) and `write`. |
 | `skills/daily/SKILL.md` | The reasoning steps Claude follows for `/daily`. |
@@ -181,7 +181,7 @@ Stdlib only at runtime; `pytest` is the only dev dependency. Imports are flat
 ## Rules
 
 - This repo is public. No personal value in code, tests or skill text: they go in
-  `~/.config/daily-journal/config.json`.
+  `~/.config/magpie/config.json`.
 - `src/` is the source of truth; `skills/daily/*.py` are copies made by `just install`.
 - Never modify anything under `~/.claude/projects/`. It is read-only input.
 - TDD, one test file per module. No em dashes anywhere.
@@ -1349,7 +1349,7 @@ git commit -m "feat(daily): read sent mail headers over IMAP"
 - [ ] A missing file gives exactly `DEFAULTS` (a deep copy).
 - [ ] A file's keys override the defaults; keys it does not set keep their default.
 - [ ] An unknown key raises `ValueError` that names it.
-- [ ] The path defaults to `~/.config/daily-journal/config.json`, or `$DAILY_JOURNAL_CONFIG` when set.
+- [ ] The path defaults to `~/.config/magpie/config.json`, or `$MAGPIE_CONFIG` when set.
 
 **Verify:** `.venv/bin/pytest tests/test_daily_config.py -v` → 3 passed
 
@@ -1402,7 +1402,7 @@ import os
 from pathlib import Path
 
 DEFAULT_PATH = Path(
-    os.environ.get("DAILY_JOURNAL_CONFIG", "~/.config/daily-journal/config.json")
+    os.environ.get("MAGPIE_CONFIG", "~/.config/magpie/config.json")
 ).expanduser()
 
 DEFAULTS = {
@@ -2005,10 +2005,11 @@ install:
 - [ ] **Step 3: Write `README.md`**
 
 ```markdown
-# daily-journal
+# magpie
 
-A Claude Code skill, `/daily`, that drafts your Obsidian daily note from what you
-actually did: it fills **Did:**, **Blocked:** and **Next:**, and you edit the draft.
+A magpie collects shiny bits from everywhere and keeps them in one nest. This
+Claude Code skill does the same with your day. Run `/daily` in the evening, and it
+drafts your Obsidian daily note from what you actually did: it fills **Did:**, **Blocked:** and **Next:**, and you edit the draft.
 
 ## Sources
 
@@ -2025,13 +2026,13 @@ Every source is optional. A missing one is reported in one line and skipped.
 
 ## Install
 
-    git clone <this repo> && cd daily-journal
+    git clone <this repo> && cd magpie
     python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
     just test && just install
 
 ## Config
 
-`~/.config/daily-journal/config.json` (or `$DAILY_JOURNAL_CONFIG`). Every key is
+`~/.config/magpie/config.json` (or `$MAGPIE_CONFIG`). Every key is
 optional:
 
 | Key | Default | Meaning |
@@ -2096,7 +2097,7 @@ git commit -m "feat(daily): add the /daily skill, install recipe and README"
 **Goal:** Run `/daily` for 2026-10-05 on the real vault, repos, sessions, ActivityWatch, calendars and mailboxes, and confirm the success criteria of the spec.
 
 **Files:**
-- Create (outside the repo): `~/.config/daily-journal/config.json`
+- Create (outside the repo): `~/.config/magpie/config.json`
 - Modify (outside the repo): `~/vault/50 Journal/daily/2026-10-05.md` (through `daily.py write` only)
 
 **Acceptance Criteria:**
@@ -2112,7 +2113,7 @@ git commit -m "feat(daily): add the /daily skill, install recipe and README"
 - [ ] **Step 0: Write the user's config (outside the repo, never committed)**
 
 The user's own values are recorded in their vault card and in this session; write them
-to `~/.config/daily-journal/config.json`:
+to `~/.config/magpie/config.json`:
 
 ```json
 {

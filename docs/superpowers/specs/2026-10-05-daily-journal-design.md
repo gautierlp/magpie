@@ -34,7 +34,7 @@ Target file: `~/vault/50 Journal/daily/YYYY-MM-DD.md`, made from
 
 ## Where it lives
 
-In its own repo (`~/projects/personal/daily-journal`, working name), separate from
+In its own repo (`~/projects/personal/magpie`), separate from
 `session_reviewer`, so each one can be open-sourced alone: session_reviewer improves
 the Claude Code setup, this one is a daily update assistant. Decided 2026-10-05.
 
@@ -52,7 +52,7 @@ Stdlib only.
 ## Config
 
 The repo is public, so no personal value is in the code. Settings come from
-`~/.config/daily-journal/config.json` (or `$DAILY_JOURNAL_CONFIG`). Every key is
+`~/.config/magpie/config.json` (or `$MAGPIE_CONFIG`). Every key is
 optional: `timezone` (default: system local), `vault` (`~/vault`), `journal_dir`
 (`50 Journal/daily`), `template` (`90 Templates/daily.md`), `repos_root`
 (`~/projects`), `extra_repos` (`[]`), `activitywatch_url`

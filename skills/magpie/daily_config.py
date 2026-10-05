@@ -1,4 +1,4 @@
-"""Settings for /daily. Every key is optional; the file only overrides the defaults."""
+"""Settings for /magpie. Every key is optional; the file only overrides the defaults."""
 import copy
 import json
 import os

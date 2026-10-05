@@ -70,7 +70,7 @@ def test_a_log_for_another_day_does_not_cover(tmp_path):
 def test_daily_runs_subagents_and_other_days_are_dropped(tmp_path):
     _write(tmp_path / "p" / "d.jsonl", [
         _user("2026-10-05T18:00:00Z",
-              "<command-message>daily</command-message>\n<command-name>/daily</command-name>"),
+              "<command-message>magpie</command-message>\n<command-name>/magpie</command-name>"),
     ])
     _write(tmp_path / "p" / "s9" / "subagents" / "a.jsonl", [_user("2026-10-05T10:00:00Z", "sub work")])
     _write(tmp_path / "p" / "old.jsonl", [_user("2026-10-03T10:00:00Z", "old work")])

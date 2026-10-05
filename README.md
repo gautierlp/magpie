@@ -27,7 +27,7 @@
     <a href="#usage"><strong>See what it writes »</strong></a>
     <br />
     <br />
-    <a href="skills/daily/SKILL.md">Read the skill</a>
+    <a href="skills/magpie/SKILL.md">Read the skill</a>
     &middot;
     <a href="https://github.com/gautierlp/magpie/issues/new">Report bug</a>
     &middot;
@@ -71,8 +71,8 @@
 It is 9 pm. The daily note is open. You worked all day, and you type "stuff".
 
 A magpie saw it all: the commits, the sessions, the calls, the mail you sent. Type
-`/daily` and it writes **Did:**, **Blocked:** and **Next:** into your note, one
-bullet per project. You fix the draft in a minute.
+`/magpie` and it writes **Did:**, **Blocked:** and **Next:** into your note, one
+bullet per project.
 
 It steals. It does not forge.
 
@@ -124,8 +124,8 @@ Each of these is optional and adds one source:
    just test
    just install
    ```
-   `just install` copies `src/*.py` into `skills/daily/` and links that folder to
-   `~/.claude/skills/daily`. After that, `/daily` works in any Claude Code session.
+   `just install` copies `src/*.py` into `skills/magpie/` and links that folder to
+   `~/.claude/skills/magpie`. After that, `/magpie` works in any Claude Code session.
 
 ### Configuration
 
@@ -173,8 +173,8 @@ security add-generic-password -s daily-imap -a you@example.com -w
 In any Claude Code session:
 
 ```
-/daily              # today
-/daily 2026-10-04   # an earlier day
+/magpie              # today
+/magpie 2026-10-04   # an earlier day
 ```
 
 ### Before / after

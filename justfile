@@ -8,7 +8,7 @@ test:
 
 # Copy the tested modules into the skill dir and symlink the skill globally
 install:
-    cp src/*.py skills/daily/
+    cp src/*.py skills/magpie/
     mkdir -p ~/.claude/skills
-    ln -sfn "$(pwd)/skills/daily" ~/.claude/skills/daily
-    @echo "Installed. Run /daily in any Claude Code session."
+    ln -sfn "$(pwd)/skills/magpie" ~/.claude/skills/magpie
+    @echo "Installed. Run /magpie in any Claude Code session."

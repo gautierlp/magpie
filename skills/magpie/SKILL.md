@@ -1,9 +1,9 @@
 ---
-name: daily
-description: Use when the user runs /daily, or asks to pre-fill, draft or fill the daily note or journal for today or a given day. Gathers the day's vault logs, git commits, Claude Code sessions, ActivityWatch time, calendar events and sent mail, then writes a Did / Blocked / Next draft into the Obsidian daily note.
+name: magpie
+description: Use when the user runs /magpie, or asks to pre-fill, draft or fill the daily note or journal for today or a given day. Gathers the day's vault logs, git commits, Claude Code sessions, ActivityWatch time, calendar events and sent mail, then writes a Did / Blocked / Next draft into the Obsidian daily note.
 ---
 
-# Daily
+# magpie
 
 Draft the three sections of the user's Obsidian daily note from what is traceable. The
 user edits the draft every evening. **Did:** is a record of facts. **Blocked:** and
@@ -20,12 +20,12 @@ user edits the draft every evening. **Did:** is a record of facts. **Blocked:** 
 
 ## Step 1: Gather
 
-The day is the argument (`/daily 2026-10-04`) or, without one, today.
+The day is the argument (`/magpie 2026-10-04`) or, without one, today.
 
 1. Run:
 
    ```bash
-   python3 ~/.claude/skills/daily/daily.py gather --date <YYYY-MM-DD>
+   python3 ~/.claude/skills/magpie/daily.py gather --date <YYYY-MM-DD>
    ```
 
 2. Read the calendar with the Google Calendar `list_events` tool, once per ID in the
@@ -47,7 +47,7 @@ If `errors` is not empty, name each failed source in the same line.
 **Did:** one bullet per group in `groups`, in the given order:
 
 - Start with the group's `link` and a colon, or the plain `name` when `link` is null.
-  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /daily spec and plan`.
+  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /magpie spec and plan`.
 - Use `logs` first (they are the best summary), then `commits`, then `sessions`
   (`turns` say what the user asked, `last_reply` what was done).
 - A session in the vault (`cwd` is the vault) can be about another project. If its
@@ -73,13 +73,13 @@ the last replies of the day. Prefer the group with the most work.
 **Merge the user's bullets (`manual`), in all three sections.** Every fact in a manual
 bullet must survive. A manual bullet about a project is folded into that project's
 bullet. A manual bullet with no project stays as its own bullet, in the user's words.
-The `manual` text can hold bullets from an earlier `/daily` run: merge them, never
+The `manual` text can hold bullets from an earlier `/magpie` run: merge them, never
 duplicate them.
 
 ## Step 3: Write
 
 ```bash
-python3 ~/.claude/skills/daily/daily.py write --date <YYYY-MM-DD> <<'EOF'
+python3 ~/.claude/skills/magpie/daily.py write --date <YYYY-MM-DD> <<'EOF'
 {"did": ["..."], "blocked": ["..."], "next": ["..."]}
 EOF
 ```

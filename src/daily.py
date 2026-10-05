@@ -1,5 +1,5 @@
 # src/daily.py
-"""/daily: gather the day's traceable work, and write the daily note's sections."""
+"""/magpie: gather the day's traceable work, and write the daily note's sections."""
 import argparse
 import json
 import socket

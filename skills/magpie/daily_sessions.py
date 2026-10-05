@@ -8,7 +8,7 @@ import transcript
 MAX_TURNS = 8
 TURN_CHARS = 300
 REPLY_CHARS = 500
-DAILY_MARKER = "<command-name>/daily</command-name>"
+DAILY_MARKER = "<command-name>/magpie</command-name>"
 
 
 def _temp_root():
@@ -44,7 +44,7 @@ def _read(path, start, end, log_re):
         seen = True
         if transcript.is_human_turn(record):
             text = transcript.human_text(record).strip()
-            if DAILY_MARKER in text or text.startswith("/daily"):
+            if DAILY_MARKER in text or text.startswith("/magpie"):
                 info["is_daily"] = True
             elif text and not transcript.is_injected(text) and len(info["turns"]) < MAX_TURNS:
                 info["turns"].append(text[:TURN_CHARS])
@@ -64,7 +64,7 @@ def sessions_for_day(projects_dir, start, end, vault):
     """Return (sessions, covered_ids) for the day [start, end).
 
     A covered session wrote that day's vault log, so the log already describes it.
-    A /daily session is this tool itself, not work. Subagent transcripts are
+    A /magpie session is this tool itself, not work. Subagent transcripts are
     sidechains, not the user's sessions. A session whose cwd is in the system temp
     folder is a background run (for example a Superset helper), not work.
     """

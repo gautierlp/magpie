@@ -1,0 +1,4 @@
+{"type": "user", "timestamp": "2026-07-01T10:00:00.000Z", "cwd": "/home/x/proj", "message": {"role": "user", "content": "hello there"}}
+
+not valid json
+{"type": "assistant", "timestamp": "2026-07-01T10:00:01.000Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "hi"}]}}

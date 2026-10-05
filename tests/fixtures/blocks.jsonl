@@ -1,0 +1,4 @@
+{"type": "user", "message": {"role": "user", "content": "typed by human"}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t1", "is_error": true, "content": "boom failed"}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "text", "text": "human via block"}]}}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "thinking", "thinking": "hmm"}, {"type": "text", "text": "answer"}, {"type": "tool_use", "name": "Bash", "input": {}}]}}

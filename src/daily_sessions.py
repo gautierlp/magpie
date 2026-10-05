@@ -1,5 +1,6 @@
 """Claude Code sessions of one day, compacted for the daily note."""
 import re
+import tempfile
 from pathlib import Path
 
 import transcript
@@ -8,6 +9,19 @@ MAX_TURNS = 8
 TURN_CHARS = 300
 REPLY_CHARS = 500
 DAILY_MARKER = "<command-name>/daily</command-name>"
+
+
+def _temp_root():
+    return Path(tempfile.gettempdir()).resolve()
+
+
+def _in_temp(cwd):
+    """True when the session ran inside the system temp folder (a background run)."""
+    if not cwd:
+        return False
+    root = _temp_root()
+    path = Path(cwd).resolve()
+    return path == root or root in path.parents
 
 
 def _log_pattern(vault, day):
@@ -51,7 +65,8 @@ def sessions_for_day(projects_dir, start, end, vault):
 
     A covered session wrote that day's vault log, so the log already describes it.
     A /daily session is this tool itself, not work. Subagent transcripts are
-    sidechains, not the user's sessions.
+    sidechains, not the user's sessions. A session whose cwd is in the system temp
+    folder is a background run (for example a Superset helper), not work.
     """
     log_re = _log_pattern(vault, start.date())
     sessions, covered = [], []
@@ -59,7 +74,7 @@ def sessions_for_day(projects_dir, start, end, vault):
         if "subagents" in path.parts:
             continue
         info = _read(path, start, end, log_re)
-        if info is None or info["is_daily"]:
+        if info is None or info["is_daily"] or _in_temp(info["cwd"]):
             continue
         if info["covered"]:
             covered.append(info["id"])

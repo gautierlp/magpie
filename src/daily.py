@@ -48,7 +48,14 @@ def _session_repo(cwd, vault):
     path, vault = Path(cwd), Path(vault)
     if path == vault or vault in path.parents:
         return "vault"
-    return daily_git.origin_name(path) or path.name
+    name = daily_git.origin_name(path)
+    if name:
+        return name
+    parts = path.parts
+    for i, part in enumerate(parts[:-2]):
+        if part == ".superset" and parts[i + 1] == "worktrees":
+            return parts[i + 2]
+    return path.name
 
 
 def build_groups(cards, logs, commits, sessions, vault):
@@ -79,11 +86,14 @@ def build_groups(cards, logs, commits, sessions, vault):
 
 def cap_size(payload, limit=SIZE_LIMIT):
     """Drop session turns from the largest group until the JSON fits. Logs and commits stay."""
-    while len(json.dumps(payload, ensure_ascii=False)) > limit:
+    def printed(obj):
+        return json.dumps(obj, ensure_ascii=False, indent=2)
+
+    while len(printed(payload)) > limit:
         candidates = [g for g in payload["groups"] if any(s["turns"] for s in g["sessions"])]
         if not candidates:
             break
-        largest = max(candidates, key=lambda g: len(json.dumps(g["sessions"], ensure_ascii=False)))
+        largest = max(candidates, key=lambda g: len(printed(g["sessions"])))
         session = max(largest["sessions"], key=lambda s: len(s["turns"]))
         session["turns"].pop()
     return payload
@@ -93,23 +103,41 @@ def gather(args):
     day = args.date
     start, end = _day_bounds(day, args.tz)
     vault = Path(args.vault)
-    cards = daily_vault.load_cards(vault)
-    logs = daily_vault.logs_for_day(cards, day)
+    errors = {}
 
-    author = args.author or daily_git.author_email()
-    commits, skipped = [], []
-    for repo in daily_git.find_repos(args.repos_root, args.extra_repo):
-        subjects = daily_git.commits_for_day(repo, start, end, author) if author else []
-        if subjects is None:
-            skipped.append(repo.name)
-        elif subjects:
-            commits.append((daily_git.origin_name(repo) or repo.name, subjects))
+    def guarded(source, fallback, call):
+        """Run one source. A failure is recorded and the fallback used, never raised."""
+        try:
+            return call()
+        except Exception as exc:
+            errors[source] = f"{type(exc).__name__}: {exc}"
+            return fallback
 
-    sessions, covered = daily_sessions.sessions_for_day(args.projects_dir, start, end, vault)
-    activity, activity_status = daily_aw.gather_activity(
-        args.aw_url, args.host, start, end, args.exclude
-    )
-    mail, mail_status = daily_mail.gather_mail(args.mail_account, day)
+    def read_vault():
+        cards = daily_vault.load_cards(vault)
+        return cards, daily_vault.logs_for_day(cards, day)
+
+    def read_git():
+        author = args.author or daily_git.author_email()
+        commits, skipped = [], []
+        for repo in daily_git.find_repos(args.repos_root, args.extra_repo):
+            subjects = daily_git.commits_for_day(repo, start, end, author) if author else []
+            if subjects is None:
+                skipped.append(repo.name)
+            elif subjects:
+                commits.append((daily_git.origin_name(repo) or repo.name, subjects))
+        return commits, skipped
+
+    cards, logs = guarded("vault", ([], {}), read_vault)
+    commits, skipped = guarded("git", ([], []), read_git)
+    sessions, covered = guarded(
+        "sessions", ([], []),
+        lambda: daily_sessions.sessions_for_day(args.projects_dir, start, end, vault))
+    activity, activity_status = guarded(
+        "activity", (None, "error"),
+        lambda: daily_aw.gather_activity(args.aw_url, args.host, start, end, args.exclude))
+    mail, mail_status = guarded(
+        "mail", ([], {}), lambda: daily_mail.gather_mail(args.mail_account, day))
 
     path = daily_note.note_path(vault, day, args.journal_dir)
     manual = {"did": "", "blocked": "", "next": ""}
@@ -132,6 +160,7 @@ def gather(args):
         "sent_mail": mail,
         "mail_status": mail_status,
         "calendars": args.calendars,
+        "errors": errors,
     }
     return cap_size(payload)
 

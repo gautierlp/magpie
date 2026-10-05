@@ -8,7 +8,9 @@ from datetime import timedelta
 
 from transcript import parse_ts
 
-BROWSER_APPS = {"Google Chrome"}
+BROWSER_APPS = {
+    "Google Chrome", "Safari", "Arc", "Firefox", "Brave Browser", "Microsoft Edge", "Chromium",
+}
 MIN_MINUTES = 2
 TOP = 20
 TITLE_CHARS = 100
@@ -19,12 +21,21 @@ def _excluded(domain, exclude):
 
 
 def _span(event):
-    begin = parse_ts(event["timestamp"])
-    return begin, begin + timedelta(seconds=event["duration"])
+    """(begin, end) of an event, or None when its timestamp or duration is unusable."""
+    begin = parse_ts(event.get("timestamp"))
+    if begin is None:
+        return None
+    try:
+        return begin, begin + timedelta(seconds=event["duration"])
+    except (KeyError, TypeError):
+        return None
 
 
 def _active_seconds(event, active):
-    begin, finish = _span(event)
+    span = _span(event)
+    if span is None:
+        return 0.0
+    begin, finish = span
     total = 0.0
     for low, high in active:
         overlap = (min(finish, high) - max(begin, low)).total_seconds()
@@ -36,18 +47,22 @@ def _active_seconds(event, active):
 def summarize(window, afk, web, exclude, min_minutes=MIN_MINUTES, top=TOP):
     """Rows of active time grouped by app plus title, and by domain plus page title.
 
-    Chrome window rows are dropped when web rows exist: the web rows carry the
-    same time with a domain, and the exclude list can only filter domains.
+    Window rows from browser apps are always dropped: a window title is a page
+    title the exclude list cannot filter, and private windows would leak. Browser
+    time comes from the web rows (domain plus page title) instead, minus the
+    excluded domains and incognito events.
     """
-    active = [_span(e) for e in afk if e["data"].get("status") == "not-afk"]
+    active = [s for s in (_span(e) for e in afk if e["data"].get("status") == "not-afk") if s]
     seconds = collections.Counter()
     for event in window:
         app = event["data"].get("app", "")
-        if web and app in BROWSER_APPS:
+        if app in BROWSER_APPS:
             continue
         title = (event["data"].get("title") or "")[:TITLE_CHARS]
         seconds[("app", app, title)] += _active_seconds(event, active)
     for event in web:
+        if event["data"].get("incognito"):
+            continue
         domain = (urllib.parse.urlsplit(event["data"].get("url", "")).hostname or "").lower()
         if not domain or _excluded(domain, exclude):
             continue

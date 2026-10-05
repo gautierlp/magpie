@@ -54,6 +54,34 @@ def test_summarize_web_shows_domains_only_and_applies_the_exclude_list():
     ]
 
 
+def test_summarize_skips_incognito_web_events():
+    web = [
+        _ev("2026-10-05T08:00:00+00:00", 600, url="https://secret.example/x", title="s", incognito=True),
+        _ev("2026-10-05T08:10:00+00:00", 600, url="https://github.com/a", title="PR", incognito=False),
+    ]
+    rows = daily_aw.summarize([], AFK, web, set())
+    assert [r["name"] for r in rows] == ["github.com"]
+
+
+def test_summarize_drops_browser_window_rows_even_without_web_rows():
+    window = [
+        _ev("2026-10-05T08:00:00+00:00", 600, app="Google Chrome", title="Bank"),
+        _ev("2026-10-05T08:10:00+00:00", 600, app="Safari", title="Private page"),
+        _ev("2026-10-05T08:20:00+00:00", 600, app="Code", title="daily.py"),
+    ]
+    rows = daily_aw.summarize(window, AFK, [], set())
+    assert [r["name"] for r in rows] == ["Code"]
+
+
+def test_summarize_ignores_an_event_with_an_unparseable_timestamp():
+    window = [
+        _ev(None, 600, app="Code", title="bad"),
+        _ev("2026-10-05T08:00:00+00:00", 600, app="Code", title="good"),
+    ]
+    rows = daily_aw.summarize(window, AFK, [], set())
+    assert rows == [{"kind": "app", "name": "Code", "title": "good", "minutes": 10}]
+
+
 class _Handler(BaseHTTPRequestHandler):
     routes = {}
 

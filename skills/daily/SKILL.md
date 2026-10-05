@@ -31,8 +31,7 @@ The day is the argument (`/daily 2026-10-04`) or, without one, today.
 2. Read the calendar with the Google Calendar `list_events` tool, once per ID in the
    payload's `calendars` list (from the user's config; skip this step if it is empty):
    `startTime` `<day>T00:00:00`, `endTime` `<next day>T00:00:00`, and `timeZone` the
-   payload's `timezone` (leave `timeZone` out when it is null). Run `gather` first if
-   you need the list; it is fast.
+   payload's `timezone` (leave `timeZone` out when it is null).
    Keep an event only if all are true:
    - `start.dateTime` exists (not an all-day event);
    - `eventType` is `DEFAULT`;
@@ -41,14 +40,14 @@ The day is the argument (`/daily 2026-10-04`) or, without one, today.
 
 If `activity_status` is not `ok`, a `mail_status` value is not `ok`, or
 `skipped_repos` is not empty, tell the user in one line which source is missing.
+If `errors` is not empty, name each failed source in the same line.
 
 ## Step 2: Draft
 
 **Did:** one bullet per group in `groups`, in the given order:
 
 - Start with the group's `link` and a colon, or the plain `name` when `link` is null.
-  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /daily spec`
-  `and plan`.
+  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /daily spec and plan`.
 - Use `logs` first (they are the best summary), then `commits`, then `sessions`
   (`turns` say what the user asked, `last_reply` what was done).
 - A session in the vault (`cwd` is the vault) can be about another project. If its

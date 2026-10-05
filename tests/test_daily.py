@@ -5,11 +5,20 @@ import os
 import socket
 import subprocess
 import sys
+from pathlib import Path
+
+import pytest
 
 import daily
 
 NOTE = "# 2026-10-05\n\n**Did:** \n\n- inbox zero\n**Blocked:** \n**Next:** \n"
 TEMPLATE = "# {{date:YYYY-MM-DD}}\n\n**Did:** \n**Blocked:** \n**Next:** \n"
+
+
+@pytest.fixture(autouse=True)
+def _tmp_is_not_system_temp(monkeypatch):
+    """pytest's tmp_path lives in the system temp folder, which gather drops on purpose."""
+    monkeypatch.setattr(daily.daily_sessions, "_temp_root", lambda: Path("/nonexistent-temp-root"))
 
 
 def _dead_url():
@@ -102,6 +111,40 @@ def test_gather_groups_logs_commits_and_sessions_by_card(tmp_path, capsys):
     assert out["sent_mail"] == []
     assert out["mail_status"] == {}
     assert out["calendars"] == []
+    assert out["errors"] == {}
+
+
+def test_gather_keeps_going_when_one_source_raises(tmp_path, capsys, monkeypatch):
+    vault, repos, projects = _setup(tmp_path)
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(daily.daily_sessions, "sessions_for_day", boom)
+    out = _gather(capsys, tmp_path, vault, repos, projects)
+    groups = {g["name"]: g for g in out["groups"]}
+    assert groups["vault-setup"]["logs"] == ["Wrote the spec.\n"]
+    assert groups["learning"]["commits"] == [{"repo": "alpha", "subject": "feat: parser"}]
+    assert out["covered_sessions"] == []
+    assert out["errors"] == {"sessions": "RuntimeError: boom"}
+
+
+def test_gather_marks_an_activity_failure(tmp_path, capsys, monkeypatch):
+    vault, repos, projects = _setup(tmp_path)
+
+    def boom(*args, **kwargs):
+        raise ValueError("bad")
+
+    monkeypatch.setattr(daily.daily_aw, "gather_activity", boom)
+    out = _gather(capsys, tmp_path, vault, repos, projects)
+    assert out["activity"] is None
+    assert out["activity_status"] == "error"
+    assert out["errors"] == {"activity": "ValueError: bad"}
+
+
+def test_session_in_a_deleted_superset_workspace_maps_to_its_project(tmp_path):
+    cwd = tmp_path / ".superset" / "worktrees" / "magpie" / "feat" / "x"
+    assert daily._session_repo(str(cwd), tmp_path / "vault") == "magpie"
 
 
 def test_gather_skips_a_broken_repo(tmp_path, capsys):
@@ -117,7 +160,9 @@ def test_cap_size_drops_session_turns_from_the_largest_group_first():
         {"name": "a", "logs": ["L" * 50], "commits": [], "sessions": [{"turns": ["x" * 100] * 5}]},
         {"name": "b", "logs": [], "commits": [], "sessions": [{"turns": ["y" * 10]}]},
     ]}
-    limit = len(json.dumps(payload, ensure_ascii=False)) - 150
+    dump = lambda p: json.dumps(p, ensure_ascii=False, indent=2)
+    turn = len(dump({"t": ["x" * 100] * 2})) - len(dump({"t": ["x" * 100]}))
+    limit = len(dump(payload)) - 2 * turn
     daily.cap_size(payload, limit=limit)
     assert len(payload["groups"][0]["sessions"][0]["turns"]) == 3
     assert payload["groups"][1]["sessions"][0]["turns"] == ["y" * 10]

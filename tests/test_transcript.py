@@ -58,3 +58,13 @@ def test_is_injected_flags_harness_text_only():
     assert transcript.is_injected("<command-name>/clear</command-name>")
     assert transcript.is_injected("Base directory for this skill: /x")
     assert not transcript.is_injected("fix the parser")
+
+
+def test_iter_records_survives_an_invalid_utf8_byte(tmp_path):
+    path = tmp_path / "cut.jsonl"
+    good = b'{"type": "user", "n": 1}\n'
+    bad = b'{"type": "user", "text": "caf\xc3"}\n'
+    path.write_bytes(good + bad + b'{"type": "assistant", "n": 2}\n')
+    records = list(transcript.iter_records(path))
+    assert [r["type"] for r in records] == ["user", "user", "assistant"]
+    assert records[0]["n"] == 1 and records[2]["n"] == 2

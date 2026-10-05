@@ -1,4 +1,6 @@
 import json
+import tempfile
+from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -82,3 +84,11 @@ def test_turns_are_cut_and_capped(tmp_path):
     assert len(session["turns"]) == 8
     assert all(len(turn) == 300 for turn in session["turns"])
     assert session["last_reply"] is None
+
+
+def test_a_session_in_the_system_temp_folder_is_dropped(tmp_path):
+    temp_cwd = str(Path(tempfile.gettempdir()) / "superset-bg" / "run")
+    _write(tmp_path / "p" / "bg.jsonl", [_user("2026-10-05T09:00:00Z", "background", cwd=temp_cwd)])
+    _write(tmp_path / "p" / "ok.jsonl", [_user("2026-10-05T09:00:00Z", "real", cwd="/w/alpha")])
+    sessions, _ = daily_sessions.sessions_for_day(tmp_path, START, END, VAULT)
+    assert [s["id"] for s in sessions] == ["ok"]

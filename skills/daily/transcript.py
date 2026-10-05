@@ -34,7 +34,7 @@ def iter_records(path):
     Skips blank lines and lines that are not valid JSON, so a single
     corrupt line never aborts a whole session parse.
     """
-    with open(path, encoding="utf-8") as handle:
+    with open(path, encoding="utf-8", errors="replace") as handle:
         for line in handle:
             line = line.strip()
             if not line:

@@ -304,7 +304,6 @@ Project link: [https://github.com/gautierlp/magpie](https://github.com/gautierlp
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 * [ActivityWatch](https://activitywatch.net)
 * [Claude Code](https://claude.com/claude-code)
 * [just](https://github.com/casey/just)

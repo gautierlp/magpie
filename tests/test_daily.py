@@ -83,6 +83,7 @@ def test_gather_groups_logs_commits_and_sessions_by_card(tmp_path, capsys):
     vault, repos, projects = _setup(tmp_path)
     out = _gather(capsys, tmp_path, vault, repos, projects)
     assert out["date"] == "2026-10-05"
+    assert out["timezone"] == "Europe/Paris"
     assert out["note_path"] == str(vault / "50 Journal" / "daily" / "2026-10-05.md")
     assert out["manual"] == {"did": "- inbox zero", "blocked": "", "next": ""}
     assert [g["name"] for g in out["groups"]] == ["vault-setup", "learning", "scratch"]

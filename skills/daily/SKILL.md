@@ -31,7 +31,8 @@ The day is the argument (`/daily 2026-10-04`) or, without one, today.
 2. Read the calendar with the Google Calendar `list_events` tool, once per ID in the
    payload's `calendars` list (from the user's config; skip this step if it is empty):
    `startTime` `<day>T00:00:00`, `endTime` `<next day>T00:00:00`, and `timeZone` the
-   config time zone. Run `gather` first if you need the list; it is fast.
+   payload's `timezone` (leave `timeZone` out when it is null). Run `gather` first if
+   you need the list; it is fast.
    Keep an event only if all are true:
    - `start.dateTime` exists (not an all-day event);
    - `eventType` is `DEFAULT`;
@@ -46,7 +47,8 @@ If `activity_status` is not `ok`, a `mail_status` value is not `ok`, or
 **Did:** one bullet per group in `groups`, in the given order:
 
 - Start with the group's `link` and a colon, or the plain `name` when `link` is null.
-  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /daily spec and plan`.
+  Example: `[[10 Projects/vault-setup/_project|vault-setup]]: wrote the /daily spec`
+  `and plan`.
 - Use `logs` first (they are the best summary), then `commits`, then `sessions`
   (`turns` say what the user asked, `last_reply` what was done).
 - A session in the vault (`cwd` is the vault) can be about another project. If its
@@ -55,6 +57,7 @@ If `activity_status` is not `ok`, a `mail_status` value is not `ok`, or
   (a repo name in a VS Code title, a `github.com` page about the repo). An activity row
   of 30 minutes or more that fits no group can be its own bullet, for example
   `Read the ActivityWatch docs (docs.activitywatch.net, 40 min)`.
+  If `activity` is null, skip it.
 - Calendar events: fold into a group when the title names its project; otherwise one
   bullet per event, with its time: `10:00 call with Abby`.
 - Sent mail: fold into a group when the subject names its project. Otherwise group
@@ -71,6 +74,8 @@ the last replies of the day. Prefer the group with the most work.
 **Merge the user's bullets (`manual`), in all three sections.** Every fact in a manual
 bullet must survive. A manual bullet about a project is folded into that project's
 bullet. A manual bullet with no project stays as its own bullet, in the user's words.
+The `manual` text can hold bullets from an earlier `/daily` run: merge them, never
+duplicate them.
 
 ## Step 3: Write
 

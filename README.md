@@ -2,7 +2,8 @@
 
 A magpie collects shiny bits from everywhere and keeps them in one nest. This
 Claude Code skill does the same with your day. Run `/daily` in the evening, and it
-drafts your Obsidian daily note from what you actually did: it fills **Did:**, **Blocked:** and **Next:**, and you edit the draft.
+drafts your Obsidian daily note from what you actually did: it fills **Did:**,
+**Blocked:** and **Next:**, and you edit the draft.
 
 ## Sources
 

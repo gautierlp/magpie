@@ -121,6 +121,7 @@ def gather(args):
 
     payload = {
         "date": day.isoformat(),
+        "timezone": args.tz,
         "note_path": str(path),
         "manual": manual,
         "groups": build_groups(cards, logs, commits, sessions, vault),

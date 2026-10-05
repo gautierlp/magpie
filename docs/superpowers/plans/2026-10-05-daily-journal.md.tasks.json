@@ -4,13 +4,13 @@
     {
       "id": 0,
       "subject": "Task 0: Repo base and transcript parser",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** A working repo on `main` with the copied transcript parser, its tests, and `just test` green.\n\n**Files:**\n- Already present (copied 2026-10-05): `LICENSE`, `conftest.py`, `requirements-dev.txt`, `docs/superpowers/`\n- Create: `src/transcript.py`, `tests/test_transcript.py`, `tests/fixtures/basic.jsonl`, `tests/fixtures/blocks.jsonl` (copies)\n- Create: `.gitignore`, `justfile`, `CLAUDE.md`\n\n**Acceptance Criteria:**\n- [ ] `src/transcript.py` has the session_reviewer functions plus `parse_ts` and `is_injected`.\n- [ ] `just test` passes.\n- [ ] `git log` on `main` shows the base commit.\n\n**Verify:** `just test` → all passed\n\n```json:metadata\n{\"files\": [\"src/transcript.py\", \"tests/test_transcript.py\", \"tests/fixtures/basic.jsonl\", \"tests/fixtures/blocks.jsonl\", \".gitignore\", \"justfile\", \"CLAUDE.md\"], \"verifyCommand\": \"`just test` → all passed\", \"acceptanceCriteria\": [\"`src/transcript.py` has the session_reviewer functions plus `parse_ts` and `is_injected`.\", \"`just test` passes.\", \"`git log` on `main` shows the base commit.\"], \"modelTier\": \"standard\"}\n```"
     },
     {
       "id": 1,
       "subject": "Task 1: Note sections (`daily_note.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Read and rewrite the Did / Blocked / Next sections of a daily note without touching the title.\n\n**Files:**\n- Create: `src/daily_note.py`\n- Test: `tests/test_daily_note.py`\n\n**Acceptance Criteria:**\n- [ ] `read_sections` returns the stripped text of each section, and raises `ValueError` naming a missing marker.\n- [ ] `replace_sections` renders each list with a blank line after it, writes a marker alone for an empty list, keeps everything above `**Did:**` byte for byte, and raises `ValueError(\"did section is empty\")` for an empty `did`.\n- [ ] `from_template` replaces `{{date:YYYY-MM-DD}}`; `note_path` points to `50 Journal/daily/<date>.md`.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_note.py -v` → 7 passed\n\n```json:metadata\n{\"files\": [\"src/daily_note.py\", \"tests/test_daily_note.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_note.py -v` → 7 passed\", \"acceptanceCriteria\": [\"`read_sections` returns the stripped text of each section, and raises `ValueError` naming a missing marker.\", \"`replace_sections` renders each list with a blank line after it, writes a marker alone for an empty list, keeps everything above `**Did:**` byte for byte, and raises `ValueError(\\\"did section is empty\\\")` for an empty `did`.\", \"`from_template` replaces `{{date:YYYY-MM-DD}}`; `note_path` points to `50 Journal/daily/<date>.md`.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         0
@@ -19,7 +19,7 @@
     {
       "id": 2,
       "subject": "Task 2: Git facts (`daily_git.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Find local repos, name them from their `origin` URL, and list one author's commit subjects for a day.\n\n**Files:**\n- Create: `src/daily_git.py`\n- Test: `tests/test_daily_git.py`\n\n**Acceptance Criteria:**\n- [ ] `repo_name` handles https, ssh, trailing slash, `.git` suffix and a trailing newline.\n- [ ] `find_repos` returns the folders with a `.git` under the root, then the extra repos that exist.\n- [ ] `commits_for_day` returns subjects newest first, only inside `[start, end)`, only for the given author, and `None` when git fails.\n- [ ] `origin_name` returns `None` for a repo with no `origin`.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_git.py -v` → 5 passed\n\n```json:metadata\n{\"files\": [\"src/daily_git.py\", \"tests/test_daily_git.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_git.py -v` → 5 passed\", \"acceptanceCriteria\": [\"`repo_name` handles https, ssh, trailing slash, `.git` suffix and a trailing newline.\", \"`find_repos` returns the folders with a `.git` under the root, then the extra repos that exist.\", \"`commits_for_day` returns subjects newest first, only inside `[start, end)`, only for the given author, and `None` when git fails.\", \"`origin_name` returns `None` for a repo with no `origin`.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         1
@@ -28,7 +28,7 @@
     {
       "id": 3,
       "subject": "Task 3: Vault cards and logs (`daily_vault.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Read every project and area card (link, repos, next action, open decisions) and the day's log files.\n\n**Files:**\n- Create: `src/daily_vault.py`\n- Test: `tests/test_daily_vault.py`\n\n**Acceptance Criteria:**\n- [ ] A project card gives `[[10 Projects/<name>/_project|<name>]]`, an area card `[[20 Areas/<name>/_area|<name>]]`.\n- [ ] A comma-separated `repo:` line gives a list of repo names.\n- [ ] A missing `**Next action:**` or `**Open decisions:**` line gives `None`.\n- [ ] `logs_for_day` maps a card name to its `log/<date>.md` text, and returns `{}` when no log exists.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_vault.py -v` → 2 passed\n\n```json:metadata\n{\"files\": [\"src/daily_vault.py\", \"tests/test_daily_vault.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_vault.py -v` → 2 passed\", \"acceptanceCriteria\": [\"A project card gives `[[10 Projects/<name>/_project|<name>]]`, an area card `[[20 Areas/<name>/_area|<name>]]`.\", \"A comma-separated `repo:` line gives a list of repo names.\", \"A missing `**Next action:**` or `**Open decisions:**` line gives `None`.\", \"`logs_for_day` maps a card name to its `log/<date>.md` text, and returns `{}` when no log exists.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         2
@@ -37,7 +37,7 @@
     {
       "id": 4,
       "subject": "Task 4: The day's sessions (`daily_sessions.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Compact each Claude Code session of the day to its working directory, its human turns and its last reply, and drop covered sessions, `/daily` runs and subagents.\n\n**Files:**\n- Create: `src/daily_sessions.py`\n- Test: `tests/test_daily_sessions.py`\n\n**Acceptance Criteria:**\n- [ ] Only records inside `[start, end)` count; a UTC record at 22:30 on the previous day counts for the Paris day.\n- [ ] Injected text (`transcript.is_injected`) is not a turn. At most 8 turns, each cut to 300 chars. The last reply is cut to 500 chars.\n- [ ] A session with a `Write` or `Edit` on `<vault>/(10 Projects|20 Areas)/<name>/log/<date>.md` goes to `covered`, by id only. A log for another date does not cover.\n- [ ] A session with `<command-name>/daily</command-name>` is dropped. Paths with `subagents` are skipped.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_sessions.py -v` → 5 passed\n\n```json:metadata\n{\"files\": [\"src/daily_sessions.py\", \"tests/test_daily_sessions.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_sessions.py -v` → 5 passed\", \"acceptanceCriteria\": [\"Only records inside `[start, end)` count; a UTC record at 22:30 on the previous day counts for the Paris day.\", \"Injected text (`transcript.is_injected`) is not a turn. At most 8 turns, each cut to 300 chars. The last reply is cut to 500 chars.\", \"A session with a `Write` or `Edit` on `<vault>/(10 Projects|20 Areas)/<name>/log/<date>.md` goes to `covered`, by id only. A log for another date does not cover.\", \"A session with `<command-name>/daily</command-name>` is dropped. Paths with `subagents` are skipped.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         3
@@ -46,7 +46,7 @@
     {
       "id": 5,
       "subject": "Task 5: ActivityWatch (`daily_aw.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Read the window, AFK and Chrome web buckets from the local ActivityWatch API and reduce them to at most 20 filtered rows of active time.\n\n**Files:**\n- Create: `src/daily_aw.py`\n- Test: `tests/test_daily_aw.py`\n\n**Acceptance Criteria:**\n- [ ] Only time that overlaps a `not-afk` interval counts.\n- [ ] Groups under 2 minutes are dropped; the top `top` (default 20) by time are kept.\n- [ ] Web rows show the domain only, never the full URL. Domains in the exclude set, and their subdomains, are dropped. Chrome window rows are dropped when web events exist.\n- [ ] No server gives `(None, \"unavailable\")`; a missing web bucket (404) gives no web rows.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_aw.py -v` → 5 passed\n\n```json:metadata\n{\"files\": [\"src/daily_aw.py\", \"tests/test_daily_aw.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_aw.py -v` → 5 passed\", \"acceptanceCriteria\": [\"Only time that overlaps a `not-afk` interval counts.\", \"Groups under 2 minutes are dropped; the top `top` (default 20) by time are kept.\", \"Web rows show the domain only, never the full URL. Domains in the exclude set, and their subdomains, are dropped. Chrome window rows are dropped when web events exist.\", \"No server gives `(None, \\\"unavailable\\\")`; a missing web bucket (404) gives no web rows.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         4
@@ -55,7 +55,7 @@
     {
       "id": 6,
       "subject": "Task 6: Sent mail (`daily_mail.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Read the day's sent mail headers (recipient names, subject) over IMAP for each account, never the body.\n\n**Files:**\n- Create: `src/daily_mail.py`\n- Test: `tests/test_daily_mail.py`\n\n**Acceptance Criteria:**\n- [ ] The sent folder is found by its `\\Sent` flag, so a French Gmail label works, and is selected read-only.\n- [ ] The search is `SINCE <day> BEFORE <day+1>` in IMAP date format (`05-Oct-2026`).\n- [ ] The fetch spec is exactly `(BODY.PEEK[HEADER.FIELDS (DATE TO SUBJECT)])`.\n- [ ] Encoded subjects are decoded; a recipient with no display name shows the local part of the address.\n- [ ] `gather_mail` sets one status per account (`ok`, `no password`, `error: imap`, `error: network`, `no sent folder`) and never raises.\n- [ ] `keychain_password` calls `security find-generic-password -s daily-imap -a <address> -w`.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_mail.py -v` → 6 passed\n\n```json:metadata\n{\"files\": [\"src/daily_mail.py\", \"tests/test_daily_mail.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_mail.py -v` → 6 passed\", \"acceptanceCriteria\": [\"The sent folder is found by its `\\\\Sent` flag, so a French Gmail label works, and is selected read-only.\", \"The search is `SINCE <day> BEFORE <day+1>` in IMAP date format (`05-Oct-2026`).\", \"The fetch spec is exactly `(BODY.PEEK[HEADER.FIELDS (DATE TO SUBJECT)])`.\", \"Encoded subjects are decoded; a recipient with no display name shows the local part of the address.\", \"`gather_mail` sets one status per account (`ok`, `no password`, `error: imap`, `error: network`, `no sent folder`) and never raises.\", \"`keychain_password` calls `security find-generic-password -s daily-imap -a <address> -w`.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         5
@@ -64,7 +64,7 @@
     {
       "id": 7,
       "subject": "Task 7: Config (`daily_config.py`)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Load the user's settings from a JSON file over safe defaults, so no personal value lives in the code.\n\n**Files:**\n- Create: `src/daily_config.py`\n- Test: `tests/test_daily_config.py`\n\n**Acceptance Criteria:**\n- [ ] A missing file gives exactly `DEFAULTS` (a deep copy).\n- [ ] A file's keys override the defaults; keys it does not set keep their default.\n- [ ] An unknown key raises `ValueError` that names it.\n- [ ] The path defaults to `~/.config/magpie/config.json`, or `$MAGPIE_CONFIG` when set.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_config.py -v` → 3 passed\n\n```json:metadata\n{\"files\": [\"src/daily_config.py\", \"tests/test_daily_config.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily_config.py -v` → 3 passed\", \"acceptanceCriteria\": [\"A missing file gives exactly `DEFAULTS` (a deep copy).\", \"A file's keys override the defaults; keys it does not set keep their default.\", \"An unknown key raises `ValueError` that names it.\", \"The path defaults to `~/.config/magpie/config.json`, or `$MAGPIE_CONFIG` when set.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         6
@@ -73,7 +73,7 @@
     {
       "id": 8,
       "subject": "Task 8: CLI (`daily.py`): gather and write",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** `daily.py gather` prints the day's payload grouped by card; `daily.py write` replaces the note sections from JSON on stdin.\n\n**Files:**\n- Create: `src/daily.py`\n- Test: `tests/test_daily.py`\n\n**Acceptance Criteria:**\n- [ ] `gather` groups logs, commits and sessions by card through the cards' `repo:` lines; a session inside the vault maps to repo `vault`; a session in a missing folder uses the folder name; groups are sorted by `3 x logs + commits + sessions`, highest first.\n- [ ] `gather` output has the keys `date`, `note_path`, `manual`, `groups`, `covered_sessions`, `skipped_repos`, `activity`, `activity_status`, `sent_mail`, `mail_status`, `calendars`.\n- [ ] Each option left out on the command line takes its value from the config file (`--config`); an empty `mail_accounts` list gives `mail_status` `{}`.\n- [ ] A repo where `git log` fails is listed in `skipped_repos` and the run goes on.\n- [ ] `cap_size` drops session turns from the largest group first until the JSON fits; logs and commits are never dropped.\n- [ ] `write` prints `{\"old\": ...}`, writes the new sections, creates a missing note from the template, and on an error returns 1, prints to stderr, and leaves the file as it was.\n\n**Verify:** `.venv/bin/pytest tests/test_daily.py -v` → 6 passed, then `just test` → all passed\n\n```json:metadata\n{\"files\": [\"src/daily.py\", \"tests/test_daily.py\"], \"verifyCommand\": \"`.venv/bin/pytest tests/test_daily.py -v` → 6 passed, then `just test` → all passed\", \"acceptanceCriteria\": [\"`gather` groups logs, commits and sessions by card through the cards' `repo:` lines; a session inside the vault maps to repo `vault`; a session in a missing folder uses the folder name; groups are sorted by `3 x logs + commits + sessions`, highest first.\", \"`gather` output has the keys `date`, `note_path`, `manual`, `groups`, `covered_sessions`, `skipped_repos`, `activity`, `activity_status`, `sent_mail`, `mail_status`, `calendars`.\", \"Each option left out on the command line takes its value from the config file (`--config`); an empty `mail_accounts` list gives `mail_status` `{}`.\", \"A repo where `git log` fails is listed in `skipped_repos` and the run goes on.\", \"`cap_size` drops session turns from the largest group first until the JSON fits; logs and commits are never dropped.\", \"`write` prints `{\\\"old\\\": ...}`, writes the new sections, creates a missing note from the template, and on an error returns 1, prints to stderr, and leaves the file as it was.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         7
@@ -82,7 +82,7 @@
     {
       "id": 9,
       "subject": "Task 9: Skill, install and docs",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Ship `skills/daily/SKILL.md`, add `just install`, write the public README, and allow the write in the vault rules.\n\n**Files:**\n- Create: `skills/daily/SKILL.md`\n- Create (by `just install`): `skills/daily/*.py` (copies of `src/*.py`)\n- Modify: `justfile` (add recipe `install`)\n- Create: `README.md`\n- Modify (outside the repo, no git): `~/vault/CLAUDE.md` (Writing rules)\n\n**Acceptance Criteria:**\n- [ ] `just install` copies the nine modules of `src/` into `skills/daily/` and symlinks `~/.claude/skills/daily`.\n- [ ] `README.md` explains what the skill does, the sources, the install, the config keys and the privacy rules, with no personal value.\n- [ ] `python3 ~/.claude/skills/daily/daily.py gather --help` prints the usage.\n- [ ] `SKILL.md` contains no em dash: `grep -c \"$(printf '\\342\\200\\224')\" skills/daily/SKILL.md` prints `0`.\n- [ ] `~/vault/CLAUDE.md` has the line that lets `/daily` write the three sections.\n\n**Verify:** `just install && python3 ~/.claude/skills/daily/daily.py gather --help | head -1` → `usage: daily.py gather [-h] ...`\n\n```json:metadata\n{\"files\": [\"skills/daily/SKILL.md\", \"skills/daily/SKILL.md\", \"skills/daily/*.py\", \"src/*.py\", \"justfile\", \"README.md\", \"~/vault/CLAUDE.md\"], \"verifyCommand\": \"`just install && python3 ~/.claude/skills/daily/daily.py gather --help | head -1` → `usage: daily.py gather [-h] ...`\", \"acceptanceCriteria\": [\"`just install` copies the nine modules of `src/` into `skills/daily/` and symlinks `~/.claude/skills/daily`.\", \"`README.md` explains what the skill does, the sources, the install, the config keys and the privacy rules, with no personal value.\", \"`python3 ~/.claude/skills/daily/daily.py gather --help` prints the usage.\", \"`SKILL.md` contains no em dash: `grep -c \\\"$(printf '\\\\342\\\\200\\\\224')\\\" skills/daily/SKILL.md` prints `0`.\", \"`~/vault/CLAUDE.md` has the line that lets `/daily` write the three sections.\"], \"modelTier\": \"standard\"}\n```",
       "blockedBy": [
         8
@@ -98,5 +98,5 @@
       ]
     }
   ],
-  "lastUpdated": "2026-10-05"
+  "lastUpdated": "2026-10-05T16:53:22"
 }

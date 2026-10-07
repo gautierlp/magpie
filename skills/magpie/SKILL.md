@@ -70,6 +70,9 @@ names a failure, a wait on someone, or a card's `card_open_decisions` that is no
 **Next:** at most 3 bullets, from the `card_next_action` of the top groups and from
 the last replies of the day. Prefer the group with the most work.
 
+Write **Next** bullets as plain text with links, never as checkboxes (`- [ ]`). A task
+lives as a checkbox in the note it is about; the daily note only points to it.
+
 **Merge the user's bullets (`manual`), in all three sections.** Every fact in a manual
 bullet must survive. A manual bullet about a project is folded into that project's
 bullet. A manual bullet with no project stays as its own bullet, in the user's words.

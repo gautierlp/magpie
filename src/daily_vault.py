@@ -8,8 +8,20 @@ CARD_KINDS = (("10 Projects", "_project.md"), ("20 Areas", "_area.md"))
 
 
 def _field(text, label):
-    match = re.search(rf"^\*\*{re.escape(label)}:\*\*\s*(.+)$", text, re.M)
+    match = re.search(rf"^\*\*{re.escape(label)}:\*\*[ \t]*(.+)$", text, re.M)
     return match.group(1).strip() if match else None
+
+
+BOX_UNDER_LABEL = re.compile(r"^\*\*Next action:\*\*[ \t]*\n[ \t]*[-*] \[ \] (.+)$", re.M)
+MARKS = re.compile(r"📅\s*\d{4}-\d{2}-\d{2}|⏫")
+
+
+def next_action(text):
+    """The open checkbox under `**Next action:**`, or the old one-line text after the label."""
+    match = BOX_UNDER_LABEL.search(text)
+    if match:
+        return " ".join(MARKS.sub("", match.group(1)).split())
+    return _field(text, "Next action")
 
 
 def _repos(text):
@@ -32,7 +44,7 @@ def load_cards(vault):
                 "name": name,
                 "link": f"[[{target}|{name}]]",
                 "repos": _repos(text),
-                "next_action": _field(text, "Next action"),
+                "next_action": next_action(text),
                 "open_decisions": _field(text, "Open decisions"),
                 "folder": path.parent,
             })

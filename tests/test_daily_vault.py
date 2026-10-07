@@ -60,3 +60,8 @@ def test_next_action_is_none_when_ticked_or_missing():
     assert next_action("**Next action:**\n- [x] done\n") is None
     assert next_action("**Next action:**\n**Open decisions:** none.\n") is None
     assert next_action("# no label\n") is None
+
+
+def test_next_action_is_none_when_the_text_is_empty():
+    assert next_action("**Next action:**\n- [ ] ⏫\n") is None
+    assert next_action("**Next action:**   \n") is None

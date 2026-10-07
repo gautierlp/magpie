@@ -9,7 +9,7 @@ CARD_KINDS = (("10 Projects", "_project.md"), ("20 Areas", "_area.md"))
 
 def _field(text, label):
     match = re.search(rf"^\*\*{re.escape(label)}:\*\*[ \t]*(.+)$", text, re.M)
-    return match.group(1).strip() if match else None
+    return (match.group(1).strip() or None) if match else None
 
 
 BOX_UNDER_LABEL = re.compile(r"^\*\*Next action:\*\*[ \t]*\n[ \t]*[-*] \[ \] (.+)$", re.M)
@@ -20,7 +20,7 @@ def next_action(text):
     """The open checkbox under `**Next action:**`, or the old one-line text after the label."""
     match = BOX_UNDER_LABEL.search(text)
     if match:
-        return " ".join(MARKS.sub("", match.group(1)).split())
+        return " ".join(MARKS.sub("", match.group(1)).split()) or None
     return _field(text, "Next action")
 
 

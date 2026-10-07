@@ -42,3 +42,26 @@ def test_logs_for_day_maps_a_card_to_its_log_text(tmp_path):
         "vault-setup": ["# 2026-10-05\n\nWrote the spec.\n"]
     }
     assert daily_vault.logs_for_day(cards, date(2026, 10, 4)) == {}
+
+
+from daily_vault import next_action
+
+
+def test_next_action_reads_the_box_under_the_label():
+    text = "# a\n**Next action:**\n- [ ] Read the runs ⏫ 📅 2026-10-09\n**Open decisions:** none.\n"
+    assert next_action(text) == "Read the runs"
+
+
+def test_next_action_keeps_the_one_line_form():
+    assert next_action("**Next action:** rewrite the notes.\n") == "rewrite the notes."
+
+
+def test_next_action_is_none_when_ticked_or_missing():
+    assert next_action("**Next action:**\n- [x] done\n") is None
+    assert next_action("**Next action:**\n**Open decisions:** none.\n") is None
+    assert next_action("# no label\n") is None
+
+
+def test_next_action_is_none_when_the_text_is_empty():
+    assert next_action("**Next action:**\n- [ ] ⏫\n") is None
+    assert next_action("**Next action:**   \n") is None

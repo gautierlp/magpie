@@ -84,8 +84,10 @@ def test_summarize_ignores_an_event_with_an_unparseable_timestamp():
 
 class _Handler(BaseHTTPRequestHandler):
     routes = {}
+    hosts = []
 
     def do_GET(self):
+        self.hosts.append(self.headers.get("Host"))
         body = self.routes.get(urllib.parse.urlsplit(self.path).path)
         if body is None:
             self.send_response(404)
@@ -130,3 +132,12 @@ def test_gather_activity_without_a_server_is_unavailable():
     sock.close()
     url = f"http://127.0.0.1:{port}/api/0"
     assert daily_aw.gather_activity(url, "h", START, END, set()) == (None, "unavailable")
+
+
+def test_gather_activity_says_localhost_in_the_host_header(aw_url):
+    # ActivityWatch rejects any other Host, so a remote server is reachable through a proxy.
+    _Handler.routes = {}
+    _Handler.hosts = []
+    daily_aw.gather_activity(aw_url, "host1", START, END, set())
+    port = urllib.parse.urlsplit(aw_url).port
+    assert _Handler.hosts and set(_Handler.hosts) == {f"localhost:{port}"}

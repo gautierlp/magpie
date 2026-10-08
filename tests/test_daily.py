@@ -206,3 +206,21 @@ def test_write_refuses_an_empty_did_and_leaves_the_file(tmp_path, capsys, monkey
                        "--vault", str(vault)]) == 1
     assert "did section is empty" in capsys.readouterr().err
     assert path.read_text(encoding="utf-8") == before
+
+
+def _resolve_host(tmp_path, cfg, *extra):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(cfg), encoding="utf-8")
+    return daily.parse_args(["gather", "--config", str(path), "--date", "2026-10-07", *extra]).host
+
+
+def test_host_defaults_to_this_machine(tmp_path):
+    assert _resolve_host(tmp_path, {}) == socket.gethostname()
+
+
+def test_host_comes_from_the_config(tmp_path):
+    assert _resolve_host(tmp_path, {"activitywatch_host": "laptop"}) == "laptop"
+
+
+def test_host_flag_beats_the_config(tmp_path):
+    assert _resolve_host(tmp_path, {"activitywatch_host": "laptop"}, "--host", "other") == "other"

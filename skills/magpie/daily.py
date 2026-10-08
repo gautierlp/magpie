@@ -204,7 +204,7 @@ def parse_args(argv):
     g.add_argument("--extra-repo", type=Path, action="append", default=None)
     g.add_argument("--author", default=None, help="default: git config --global user.email")
     g.add_argument("--aw-url", default=None)
-    g.add_argument("--host", default=socket.gethostname())
+    g.add_argument("--host", default=None)
     g.add_argument("--mail-account", action="append", default=None)
 
     sub.add_parser("write", parents=[common], help="replace the note sections from JSON on stdin")
@@ -225,6 +225,7 @@ def resolve(args):
         if args.extra_repo is None:
             args.extra_repo = [Path(p).expanduser() for p in cfg["extra_repos"]]
         args.aw_url = args.aw_url or cfg["activitywatch_url"]
+        args.host = args.host or cfg["activitywatch_host"] or socket.gethostname()
         args.exclude = {domain.lower() for domain in cfg["exclude_domains"]}
         args.mail_account = args.mail_account or cfg["mail_accounts"]
         args.calendars = cfg["calendars"]

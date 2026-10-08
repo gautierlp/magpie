@@ -81,8 +81,11 @@ def summarize(window, afk, web, exclude, min_minutes=MIN_MINUTES, top=TOP):
 def _fetch(base, bucket, start, end, timeout):
     query = urllib.parse.urlencode({"start": start.isoformat(), "end": end.isoformat(), "limit": -1})
     url = f"{base}/buckets/{urllib.parse.quote(bucket)}/events?{query}"
+    # ActivityWatch rejects a request whose Host is not localhost, even through a proxy.
+    port = urllib.parse.urlsplit(base).port or 5600
+    request = urllib.request.Request(url, headers={"Host": f"localhost:{port}"})
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
             return json.load(response)
     except (urllib.error.URLError, OSError, ValueError):
         return None

@@ -16,6 +16,7 @@ DEFAULTS = {
     "repos_root": "~/projects",
     "extra_repos": [],
     "activitywatch_url": "http://localhost:5600/api/0",
+    "activitywatch_host": None,  # machine name in the bucket IDs; None means this machine
     "exclude_domains": [],
     "mail_accounts": [],
     "calendars": [],

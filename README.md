@@ -153,6 +153,7 @@ key is optional, and an unknown key is an error, so a typo fails loudly.
 | `repos_root` | `~/projects` | every git repo directly under it is read |
 | `extra_repos` | `[]` | more repos, anywhere |
 | `activitywatch_url` | `http://localhost:5600/api/0` | the ActivityWatch API |
+| `activitywatch_host` | this machine | the machine ActivityWatch records, when magpie runs on another one |
 | `exclude_domains` | `[]` | sites never reported, subdomains included |
 | `mail_accounts` | `[]` | Gmail addresses whose sent mail is read |
 | `calendars` | `[]` | Google Calendar IDs |

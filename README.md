@@ -158,6 +158,11 @@ key is optional, and an unknown key is an error, so a typo fails loudly.
 | `mail_accounts` | `[]` | Gmail addresses whose sent mail is read |
 | `calendars` | `[]` | Google Calendar IDs |
 
+magpie can read ActivityWatch on another machine. Expose its port 5600 to your
+private network (for example `tailscale serve --bg --tcp 5600 tcp://localhost:5600`),
+then set `activitywatch_url` to that machine and `activitywatch_host` to the name in
+its bucket IDs (`aw-watcher-window_<name>`).
+
 For each mail account, create a Google app password and store it in the macOS
 Keychain. The command asks for the password, so it never lands in your shell
 history:

@@ -1,0 +1,57 @@
+{
+  "planPath": "docs/superpowers/plans/2026-10-19-weekly-journal.md",
+  "tasks": [
+    {
+      "id": 0,
+      "subject": "Task 1: Marker sets in daily_note.py",
+      "status": "pending",
+      "description": "**Goal:** `read_sections` and `replace_sections` work with the daily markers (default) and the weekly markers.\n\n**Files:**\n- Modify: `src/daily_note.py`\n- Test: `tests/test_daily_note.py`\n\n**Acceptance Criteria:**\n- [ ] `daily_note.WEEKLY` is `((\"moved\", \"**Moved:**\"), (\"blocked\", \"**Still blocked:**\"), (\"focus\", \"**Focus:**\"))`.\n- [ ] `read_sections(text, daily_note.WEEKLY)` returns `{\"moved\", \"blocked\", \"focus\"}`.\n- [ ] `replace_sections(text, {...}, daily_note.WEEKLY)` with an empty `moved` raises `ValueError(\"moved section is empty\")`.\n- [ ] All existing tests in `tests/test_daily_note.py` and `tests/test_daily.py` pass with no edit.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_note.py -v` → all pass\n\n```json:metadata\n{\"files\": [\"src/daily_note.py\", \"tests/test_daily_note.py\"], \"verifyCommand\": \".venv/bin/pytest -v\", \"acceptanceCriteria\": [\"WEEKLY marker set defined\", \"read_sections with WEEKLY returns moved/blocked/focus\", \"empty moved raises 'moved section is empty'\", \"existing tests pass unchanged\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 1,
+      "subject": "Task 2: weekly_dir config key",
+      "status": "pending",
+      "description": "**Goal:** The config accepts `weekly_dir`, default `50 Journal/weekly`.\n\n**Files:**\n- Modify: `src/daily_config.py`\n- Test: `tests/test_daily_config.py`\n\n**Acceptance Criteria:**\n- [ ] `daily_config.DEFAULTS[\"weekly_dir\"] == \"50 Journal/weekly\"`.\n- [ ] A config file with `{\"weekly_dir\": \"J/w\"}` loads with no error and gives `\"J/w\"`.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_config.py -v` → all pass\n\n```json:metadata\n{\"files\": [\"src/daily_config.py\", \"tests/test_daily_config.py\"], \"verifyCommand\": \".venv/bin/pytest -v\", \"acceptanceCriteria\": [\"weekly_dir default is '50 Journal/weekly'\", \"weekly_dir override loads\"], \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 2,
+      "subject": "Task 3: Week logic (daily_week.py)",
+      "status": "pending",
+      "description": "**Goal:** A module that gives the ISO week of a date, the weekly note path and blank text, the status of the 7 daily notes, and the cards they name.\n\n**Files:**\n- Create: `src/daily_week.py`\n- Test: `tests/test_daily_week.py`\n\n**Acceptance Criteria:**\n- [ ] `week_bounds(date(2026, 10, 14)) == (date(2026, 10, 12), date(2026, 10, 18))`; a Monday and a Sunday map to the same week.\n- [ ] `week_id(date(2026, 12, 31)) == \"2026-W53\"` and `week_id(date(2026, 10, 14)) == \"2026-W42\"`.\n- [ ] `read_days` gives `ok`, `missing` (no file or three empty sections), `unreadable` (with the reason in errors) and `future` (after `today`; `today` itself is not future).\n- [ ] `cards_named` keeps a card whose link or whole-word name is in the week's text, and drops `folder` and `repos`.\n\n**Verify:** `.venv/bin/pytest tests/test_daily_week.py -v` → all pass\n\n```json:metadata\n{\"files\": [\"src/daily_week.py\", \"tests/test_daily_week.py\"], \"verifyCommand\": \".venv/bin/pytest -v\", \"acceptanceCriteria\": [\"week_bounds Monday to Sunday\", \"week_id 2026-12-31 is 2026-W53\", \"read_days statuses ok/missing/unreadable/future\", \"cards_named by link or whole-word name, without folder and repos\"], \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "subject": "Task 4: week command and write --week in daily.py",
+      "status": "pending",
+      "description": "**Goal:** `daily.py week` prints the week's JSON payload; `daily.py write --week` writes the weekly note; `week` defaults to yesterday.\n\n**Files:**\n- Modify: `src/daily.py`\n- Test: `tests/test_daily.py`\n\n**Acceptance Criteria:**\n- [ ] `daily.py week --date 2026-10-14` prints JSON with keys `week`, `start`, `end`, `note_path`, `manual`, `days`, `cards`, `errors`, and `week == \"2026-W42\"`.\n- [ ] `manual` holds the text under each weekly marker of an existing weekly note, else three empty strings.\n- [ ] With no `--date`, `week` takes yesterday and `gather` still takes today.\n- [ ] `write --week` on a missing file writes `blank(day)` filled with the bullets; on an existing file it keeps the title and prints the old sections.\n- [ ] `write --week` with an empty `moved` exits 1, prints `moved section is empty`, and leaves the file.\n- [ ] Every existing test in `tests/test_daily.py` passes unchanged.\n\n**Verify:** `.venv/bin/pytest tests/test_daily.py -v` → all pass\n\n```json:metadata\n{\"files\": [\"src/daily.py\", \"tests/test_daily.py\"], \"verifyCommand\": \".venv/bin/pytest -v\", \"acceptanceCriteria\": [\"week prints week/start/end/note_path/manual/days/cards/errors\", \"manual from an existing weekly note\", \"week defaults to yesterday, gather to today\", \"write --week creates and replaces the weekly note\", \"empty moved exits 1 and leaves the file\", \"existing tests pass unchanged\"], \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        2
+      ]
+    },
+    {
+      "id": 4,
+      "subject": "Task 5: Skill text, docs and install",
+      "status": "pending",
+      "description": "**Goal:** `/magpie week` works in Claude Code: the skill explains the weekly run, the docs mention it, and `just install` copies the new module.\n\n**Files:**\n- Modify: `skills/magpie/SKILL.md`\n- Modify: `README.md`\n- Modify: `CLAUDE.md`\n\n**Acceptance Criteria:**\n- [ ] The SKILL.md frontmatter `description` also triggers on \"/magpie week\" and \"weekly note\".\n- [ ] SKILL.md has a \"## Weekly run\" section with the 4 steps of the spec, word for word on the rules (gap filling, the no-activity test, the three sections, the merge, the report).\n- [ ] README.md has a short \"Weekly note\" paragraph under the usage part; CLAUDE.md names the new spec.\n- [ ] After `just install`, `~/.claude/skills/magpie/daily_week.py` exists and `python3 ~/.claude/skills/magpie/daily.py week --date 2026-10-14` prints JSON with `\"week\": \"2026-W42\"`.\n- [ ] `grep -nP '\\x{2014}|\\x{2013}' skills/magpie/SKILL.md README.md CLAUDE.md` finds nothing new.\n\n**Verify:** `just test && just install && python3 ~/.claude/skills/magpie/daily.py week --date 2026-10-14 | head -5`\n\n```json:metadata\n{\"files\": [\"skills/magpie/SKILL.md\", \"README.md\", \"CLAUDE.md\"], \"verifyCommand\": \"just test && just install && python3 ~/.claude/skills/magpie/daily.py week --date 2026-10-14\", \"acceptanceCriteria\": [\"description triggers on /magpie week\", \"Weekly run section with steps W1 to W4\", \"README and CLAUDE.md updated\", \"installed daily.py week prints 2026-W42\", \"no em or en dash added\"], \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        3
+      ]
+    },
+    {
+      "id": 5,
+      "subject": "Task 6: Acceptance on the real vault",
+      "status": "pending",
+      "description": "**Goal:** One real `/magpie week 2026-10-14` run produces `~/vault/50 Journal/weekly/2026-W42.md`.\n\n**Files:**\n- None in the repo. Writes `~/vault/50 Journal/weekly/2026-W42.md` (and a daily note for 2026-10-15 only if that day has activity).\n\n**Acceptance Criteria:**\n- [ ] `~/vault/50 Journal/weekly/2026-W42.md` exists, its first line is `# 2026-W42 (2026-10-12 to 2026-10-18)`, and **Moved:** is not empty.\n- [ ] `grep -c '\\- \\[ \\]' ~/vault/50\\ Journal/weekly/2026-W42.md` prints 0 (no checkbox).\n- [ ] The run report names 2026-10-15 as filled or as a day with no activity.\n- [ ] No daily note of 2026-10-12 to 2026-10-18 lost a bullet: `diff` against the copy made in Step 0 shows no removed `- ` line. Never run git in the vault.\n\n**Verify:** `head -1 ~/vault/50\\ Journal/weekly/2026-W42.md && grep -c '\\- \\[ \\]' ~/vault/50\\ Journal/weekly/2026-W42.md`\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"head -1 ~/vault/50\\\\ Journal/weekly/2026-W42.md && grep -c '\\\\- \\\\[ \\\\]' ~/vault/50\\\\ Journal/weekly/2026-W42.md\", \"acceptanceCriteria\": [\"2026-W42.md exists with the title line and a non-empty Moved\", \"no checkbox in the weekly note\", \"2026-10-15 named as filled or no activity\", \"no daily note lost a bullet\"], \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        4
+      ]
+    }
+  ],
+  "lastUpdated": "2026-10-19T00:00:00+02:00"
+}

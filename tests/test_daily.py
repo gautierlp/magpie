@@ -5,6 +5,7 @@ import os
 import socket
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -224,3 +225,95 @@ def test_host_comes_from_the_config(tmp_path):
 
 def test_host_flag_beats_the_config(tmp_path):
     assert _resolve_host(tmp_path, {"activitywatch_host": "laptop"}, "--host", "other") == "other"
+
+
+WEEK = "# 2026-W42 (2026-10-12 to 2026-10-18)\n\n**Moved:**\n\n- my bullet\n\n**Still blocked:**\n\n**Focus:**\n"
+
+
+def _week_args(tmp_path, vault, *extra):
+    return daily.parse_args(["week", "--config", str(tmp_path / "none.json"),
+                             "--vault", str(vault), *extra])
+
+
+def test_week_reads_the_days_and_the_named_cards(tmp_path):
+    vault, _, _ = _setup(tmp_path)
+    (vault / "50 Journal" / "daily" / "2026-10-06.md").write_text(
+        "# 2026-10-06\n\n**Did:**\n\n- [[10 Projects/vault-setup/_project|vault-setup]]: spec\n\n"
+        "**Blocked:**\n\n**Next:**\n", encoding="utf-8")
+    args = _week_args(tmp_path, vault, "--date", "2026-10-07")
+    args.today = date(2026, 10, 8)
+    payload = daily.week(args)
+    assert payload["week"] == "2026-W41"
+    assert (payload["start"], payload["end"]) == ("2026-10-05", "2026-10-11")
+    assert payload["note_path"].endswith("50 Journal/weekly/2026-W41.md")
+    assert payload["manual"] == {"moved": "", "blocked": "", "focus": ""}
+    assert [d["status"] for d in payload["days"]] == [
+        "ok", "ok", "missing", "missing", "future", "future", "future"]
+    assert [c["name"] for c in payload["cards"]] == ["vault-setup"]
+    assert payload["errors"] == {}
+
+
+def test_week_reads_the_manual_bullets_of_an_existing_weekly_note(tmp_path):
+    vault, _, _ = _setup(tmp_path)
+    folder = vault / "50 Journal" / "weekly"
+    folder.mkdir(parents=True)
+    (folder / "2026-W42.md").write_text(WEEK, encoding="utf-8")
+    args = _week_args(tmp_path, vault, "--date", "2026-10-14")
+    args.today = date(2026, 10, 19)
+    assert daily.week(args)["manual"] == {"moved": "- my bullet", "blocked": "", "focus": ""}
+
+
+def test_week_defaults_to_yesterday_and_gather_to_today(tmp_path, monkeypatch):
+    vault, _, _ = _setup(tmp_path)
+    monkeypatch.setattr(daily, "_today", lambda tz: date(2026, 10, 19))
+    assert _week_args(tmp_path, vault).date == date(2026, 10, 18)
+    gather = daily.parse_args(["gather", "--config", str(tmp_path / "none.json"), "--vault", str(vault)])
+    assert gather.date == date(2026, 10, 19)
+
+
+def test_week_main_prints_json(tmp_path, capsys):
+    vault, _, _ = _setup(tmp_path)
+    assert daily.main(["week", "--config", str(tmp_path / "none.json"), "--vault", str(vault),
+                       "--date", "2026-10-14"]) == 0
+    assert json.loads(capsys.readouterr().out)["week"] == "2026-W42"
+
+
+def test_write_week_creates_the_weekly_note(tmp_path, capsys, monkeypatch):
+    vault, _, _ = _setup(tmp_path)
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(
+        {"moved": ["a"], "blocked": [], "focus": ["b"]})))
+    assert daily.main(["write", "--week", "--config", str(tmp_path / "none.json"),
+                       "--date", "2026-10-14", "--vault", str(vault)]) == 0
+    assert json.loads(capsys.readouterr().out) == {"old": {"moved": "", "blocked": "", "focus": ""}}
+    text = (vault / "50 Journal" / "weekly" / "2026-W42.md").read_text(encoding="utf-8")
+    assert text == (
+        "# 2026-W42 (2026-10-12 to 2026-10-18)\n\n"
+        "**Moved:**\n\n- a\n\n**Still blocked:**\n\n**Focus:**\n\n- b\n"
+    )
+
+
+def test_write_week_replaces_an_existing_weekly_note(tmp_path, capsys, monkeypatch):
+    vault, _, _ = _setup(tmp_path)
+    folder = vault / "50 Journal" / "weekly"
+    folder.mkdir(parents=True)
+    (folder / "2026-W42.md").write_text(WEEK, encoding="utf-8")
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(
+        {"moved": ["my bullet", "new"], "blocked": [], "focus": []})))
+    assert daily.main(["write", "--week", "--config", str(tmp_path / "none.json"),
+                       "--date", "2026-10-14", "--vault", str(vault)]) == 0
+    assert json.loads(capsys.readouterr().out)["old"]["moved"] == "- my bullet"
+    assert (folder / "2026-W42.md").read_text(encoding="utf-8").startswith(
+        "# 2026-W42 (2026-10-12 to 2026-10-18)\n\n**Moved:**\n\n- my bullet\n- new\n")
+
+
+def test_write_week_refuses_an_empty_moved_and_leaves_the_file(tmp_path, capsys, monkeypatch):
+    vault, _, _ = _setup(tmp_path)
+    folder = vault / "50 Journal" / "weekly"
+    folder.mkdir(parents=True)
+    (folder / "2026-W42.md").write_text(WEEK, encoding="utf-8")
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(
+        {"moved": [], "blocked": ["x"], "focus": []})))
+    assert daily.main(["write", "--week", "--config", str(tmp_path / "none.json"),
+                       "--date", "2026-10-14", "--vault", str(vault)]) == 1
+    assert "moved section is empty" in capsys.readouterr().err
+    assert (folder / "2026-W42.md").read_text(encoding="utf-8") == WEEK

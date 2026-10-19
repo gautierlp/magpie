@@ -23,3 +23,13 @@ def test_load_rejects_an_unknown_key(tmp_path):
     path.write_text(json.dumps({"vaul": "x"}), encoding="utf-8")
     with pytest.raises(ValueError, match="vaul"):
         daily_config.load(path)
+
+
+def test_weekly_dir_has_a_default():
+    assert daily_config.DEFAULTS["weekly_dir"] == "50 Journal/weekly"
+
+
+def test_weekly_dir_can_be_overridden(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"weekly_dir": "J/w"}), encoding="utf-8")
+    assert daily_config.load(path)["weekly_dir"] == "J/w"

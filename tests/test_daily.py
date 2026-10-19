@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 import daily
+import daily_week
 
 NOTE = "# 2026-10-05\n\n**Did:** \n\n- inbox zero\n**Blocked:** \n**Next:** \n"
 TEMPLATE = "# {{date:YYYY-MM-DD}}\n\n**Did:** \n**Blocked:** \n**Next:** \n"
@@ -263,20 +264,26 @@ def test_week_reads_the_manual_bullets_of_an_existing_weekly_note(tmp_path):
     assert daily.week(args)["manual"] == {"moved": "- my bullet", "blocked": "", "focus": ""}
 
 
-def test_week_defaults_to_yesterday_and_gather_to_today(tmp_path, monkeypatch):
+@pytest.mark.parametrize("today, expected", [
+    (date(2026, 10, 19), date(2026, 10, 12)),  # Monday of W43: last week is W42
+    (date(2026, 10, 25), date(2026, 10, 18)),  # Sunday of W43: still W42, never the current week
+])
+def test_week_defaults_to_last_week_and_gather_to_today(tmp_path, monkeypatch, today, expected):
     vault, _, _ = _setup(tmp_path)
-    monkeypatch.setattr(daily, "_today", lambda tz: date(2026, 10, 19))
-    assert _week_args(tmp_path, vault).date == date(2026, 10, 18)
+    monkeypatch.setattr(daily, "_today", lambda tz: today)
+    args = _week_args(tmp_path, vault)
+    assert args.date == expected
+    assert daily_week.week_id(args.date) == "2026-W42"
     gather = daily.parse_args(["gather", "--config", str(tmp_path / "none.json"), "--vault", str(vault)])
-    assert gather.date == date(2026, 10, 19)
+    assert gather.date == today
 
 
-def test_write_week_defaults_to_yesterday_and_plain_write_to_today(tmp_path, monkeypatch):
+def test_write_week_defaults_to_last_week_and_plain_write_to_today(tmp_path, monkeypatch):
     vault, _, _ = _setup(tmp_path)
-    monkeypatch.setattr(daily, "_today", lambda tz: date(2026, 10, 19))
+    monkeypatch.setattr(daily, "_today", lambda tz: date(2026, 10, 25))
     base = ["--config", str(tmp_path / "none.json"), "--vault", str(vault)]
     assert daily.parse_args(["write", "--week", *base]).date == date(2026, 10, 18)
-    assert daily.parse_args(["write", *base]).date == date(2026, 10, 19)
+    assert daily.parse_args(["write", *base]).date == date(2026, 10, 25)
 
 
 def test_week_main_prints_json(tmp_path, capsys):

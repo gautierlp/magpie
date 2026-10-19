@@ -35,10 +35,12 @@ periodic notes use), for example `2026-W42.md`:
 
 ## Which week
 
-`/magpie week` with no date takes the ISO week (Monday to Sunday) that contains
-yesterday, in the configured timezone. On Sunday evening that is the current week. On
-Monday morning it is the week that just ended. `/magpie week 2026-10-14` takes
-the week that contains that date.
+`/magpie week` with no date takes last week: the ISO week (Monday to Sunday) before the
+current one, in the configured timezone, whatever day it is. `write --week` with no
+date takes the same week. With no date, the skill asks the user to confirm the week
+before it writes anything. `/magpie week 2026-10-14` takes the week that contains that
+date, with no question. (Changed 2026-10-19 after the first run: the default was the
+week of yesterday.)
 
 ## Config
 
@@ -93,7 +95,8 @@ replace code.
 
 A new section, "Weekly run", triggered by `/magpie week [date]`:
 
-1. Run `daily.py week`. Report `errors` in one line.
+1. Run `daily.py week`. Report `errors` in one line. With no date given, confirm the
+   week with the user before step 2.
 2. For each day with `status` `missing`, run the daily flow (gather, draft, write) for
    that date. A day whose gather has no groups, no activity row of 30 minutes or more,
    no calendar event and no sent mail gets no note: say so in the report and move on.
@@ -124,7 +127,7 @@ A new section, "Weekly run", triggered by `/magpie week [date]`:
 TDD, in the existing test files:
 
 - `test_daily.py`: week bounds (a Wednesday, a Sunday, a Monday, a year boundary such
-  as 2026-12-31 in 2026-W53); the default week from "yesterday"; day status
+  as 2026-12-31 in 2026-W53); the default week is last week, on a Monday and on a Sunday; day status
   `ok`, `missing`, `unreadable`, `future`; card filtering by link and by name;
   `write --week` on a new file and on a file with user bullets.
 - `test_daily_note.py`: read and replace with the weekly marker set; the daily marker

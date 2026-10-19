@@ -235,7 +235,7 @@ def parse_args(argv):
     sub = parser.add_subparsers(dest="command", required=True)
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--config", type=Path, default=daily_config.DEFAULT_PATH)
-    common.add_argument("--date", type=date.fromisoformat, default=None, help="YYYY-MM-DD, default today (yesterday for week)")
+    common.add_argument("--date", type=date.fromisoformat, default=None, help="YYYY-MM-DD, default today (last week for week and write --week)")
     common.add_argument("--tz", default=None)
     common.add_argument("--vault", type=Path, default=None)
 
@@ -264,7 +264,9 @@ def resolve(args):
     args.template = cfg["template"]
     args.today = _today(args.tz)
     if args.date is None:
-        args.date = args.today - timedelta(days=1) if args.command == "week" or getattr(args, "week", False) else args.today
+        weekly = args.command == "week" or getattr(args, "week", False)
+        # A week run defaults to the week before the current one, whatever today is.
+        args.date = args.today - timedelta(days=7) if weekly else args.today
     if args.command == "gather":
         args.repos_root = Path(args.repos_root or cfg["repos_root"]).expanduser()
         if args.extra_repo is None:

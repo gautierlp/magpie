@@ -100,7 +100,7 @@ Nothing else.
 
 `/magpie week` drafts the weekly note from the week's daily notes. `/magpie week
 2026-10-14` takes the ISO week (Monday to Sunday) that holds that date. With no date,
-the script takes the week that holds yesterday.
+the script takes last week: the full week before the current one, whatever day it is.
 
 ### Step W1: Read the week
 
@@ -109,6 +109,12 @@ python3 ~/.claude/skills/magpie/daily.py week [--date <YYYY-MM-DD>]
 ```
 
 If `errors` is not empty, name each failed day or source in one line.
+
+If the user gave no date, confirm the week before Step W2, because Step W2 writes
+daily notes. Ask one question that names `week`, `start` and `end`, with last week as
+the default answer, for example "Run the weekly note for 2026-W42 (2026-10-12 to
+2026-10-18)?". If the user names another week, run Step W1 again with a date in that
+week. A date in the command is the user's choice already: do not ask again.
 
 ### Step W2: Fill the gaps
 

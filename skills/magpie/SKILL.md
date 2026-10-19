@@ -140,7 +140,8 @@ python3 ~/.claude/skills/magpie/daily.py write --week --date <start> <<'EOF'
 EOF
 ```
 
-Use the `start` date of the week payload, because `write --week` with no date takes today, not yesterday.
+Pass the `start` date of the week payload, so that the write goes to the same week as
+Step W1.
 
 `moved` must not be empty. If the command fails, show the error and stop. Then show the
 weekly note as it is in the file, and one line: which days were filled, which had no

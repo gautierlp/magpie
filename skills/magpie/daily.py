@@ -264,7 +264,7 @@ def resolve(args):
     args.template = cfg["template"]
     args.today = _today(args.tz)
     if args.date is None:
-        args.date = args.today - timedelta(days=1) if args.command == "week" else args.today
+        args.date = args.today - timedelta(days=1) if args.command == "week" or getattr(args, "week", False) else args.today
     if args.command == "gather":
         args.repos_root = Path(args.repos_root or cfg["repos_root"]).expanduser()
         if args.extra_repo is None:

@@ -271,6 +271,14 @@ def test_week_defaults_to_yesterday_and_gather_to_today(tmp_path, monkeypatch):
     assert gather.date == date(2026, 10, 19)
 
 
+def test_write_week_defaults_to_yesterday_and_plain_write_to_today(tmp_path, monkeypatch):
+    vault, _, _ = _setup(tmp_path)
+    monkeypatch.setattr(daily, "_today", lambda tz: date(2026, 10, 19))
+    base = ["--config", str(tmp_path / "none.json"), "--vault", str(vault)]
+    assert daily.parse_args(["write", "--week", *base]).date == date(2026, 10, 18)
+    assert daily.parse_args(["write", *base]).date == date(2026, 10, 19)
+
+
 def test_week_main_prints_json(tmp_path, capsys):
     vault, _, _ = _setup(tmp_path)
     assert daily.main(["week", "--config", str(tmp_path / "none.json"), "--vault", str(vault),

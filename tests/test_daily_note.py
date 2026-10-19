@@ -46,3 +46,37 @@ def test_from_template_fills_the_date(tmp_path):
 def test_note_path(tmp_path):
     expected = tmp_path / "50 Journal" / "daily" / "2026-10-05.md"
     assert daily_note.note_path(tmp_path, date(2026, 10, 5)) == expected
+
+
+WEEK_NOTE = (
+    "# 2026-W42 (2026-10-12 to 2026-10-18)\n\n"
+    "**Moved:**\n\n- site: form split\n\n**Still blocked:**\n\n**Focus:**\n\n- fix the blockers\n"
+)
+
+
+def test_read_sections_with_the_weekly_markers():
+    assert daily_note.read_sections(WEEK_NOTE, daily_note.WEEKLY) == {
+        "moved": "- site: form split",
+        "blocked": "",
+        "focus": "- fix the blockers",
+    }
+
+
+def test_replace_sections_with_the_weekly_markers_keeps_the_title():
+    out = daily_note.replace_sections(
+        WEEK_NOTE, {"moved": ["a"], "blocked": ["b"], "focus": []}, daily_note.WEEKLY)
+    assert out == (
+        "# 2026-W42 (2026-10-12 to 2026-10-18)\n\n"
+        "**Moved:**\n\n- a\n\n**Still blocked:**\n\n- b\n\n**Focus:**\n"
+    )
+
+
+def test_replace_sections_refuses_an_empty_moved():
+    with pytest.raises(ValueError, match="moved section is empty"):
+        daily_note.replace_sections(
+            WEEK_NOTE, {"moved": [], "blocked": [], "focus": ["x"]}, daily_note.WEEKLY)
+
+
+def test_the_daily_markers_are_not_found_in_a_weekly_note():
+    with pytest.raises(ValueError, match="Did"):
+        daily_note.read_sections(WEEK_NOTE)

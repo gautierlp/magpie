@@ -1,8 +1,9 @@
 # CLAUDE.md
 
 magpie: a Claude Code skill, `/magpie`, that drafts the Did / Blocked / Next sections of
-an Obsidian daily note from the day's traceable work. Spec:
-`docs/superpowers/specs/2026-10-05-daily-journal-design.md`.
+an Obsidian daily note from the day's traceable work, and with `/magpie week` a weekly
+note from the daily notes. Specs: `docs/superpowers/specs/2026-10-05-daily-journal-design.md`,
+`docs/superpowers/specs/2026-10-19-weekly-journal-design.md`.
 
 ## Commands
 

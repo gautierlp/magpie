@@ -1,6 +1,6 @@
 ---
 name: magpie
-description: Use when the user runs /magpie, or asks to pre-fill, draft or fill the daily note or journal for today or a given day. Gathers the day's vault logs, git commits, Claude Code sessions, ActivityWatch time, calendar events and sent mail, then writes a Did / Blocked / Next draft into the Obsidian daily note.
+description: Use when the user runs /magpie or /magpie week, or asks to pre-fill, draft or fill the daily note, the journal, or the weekly note for a day or a week. Gathers the day's vault logs, git commits, Claude Code sessions, ActivityWatch time, calendar events and sent mail, then writes a Did / Blocked / Next draft into the Obsidian daily note; the weekly run sums the week's daily notes into Moved / Still blocked / Focus.
 ---
 
 # magpie
@@ -95,3 +95,53 @@ The command prints the old sections. If it fails, show the error and stop.
 Show the new note sections as they are now in the file, then one line: what changed
 compared with the old sections (for example "3 bullets added, your 2 bullets merged").
 Nothing else.
+
+## Weekly run
+
+`/magpie week` drafts the weekly note from the week's daily notes. `/magpie week
+2026-10-14` takes the ISO week (Monday to Sunday) that holds that date. With no date,
+the script takes the week that holds yesterday.
+
+### Step W1: Read the week
+
+```bash
+python3 ~/.claude/skills/magpie/daily.py week [--date <YYYY-MM-DD>]
+```
+
+If `errors` is not empty, name each failed day or source in one line.
+
+### Step W2: Fill the gaps
+
+For each entry of `days` with `status` `missing`, do Steps 1 to 3 of the daily run for
+that date. Skip Step 4 (the daily report). A day gets no note when its gather has no
+groups, no activity row of 30 minutes or more, no calendar event and no sent mail:
+remember the date for the report and go to the next day. A day with `status`
+`unreadable` is never rewritten. When all gaps are done, run Step W1 again.
+
+### Step W3: Draft
+
+- **Moved:** one bullet per project or area, from the **Did:** bullets of the week.
+  Start with the card's `link` from `cards`. State results, not each step. Work with no
+  card keeps one short bullet.
+- **Still blocked:** at most 3. Use a **Blocked:** bullet of the week only when no
+  later daily note or card shows it as resolved. Add a card's `open_decisions` only when
+  it holds up work.
+- **Focus:** at most 3, plain text with links, never checkboxes. Take them from the
+  `next_action` of the cards with the most work in the week and from the last **Next:**
+  bullets.
+- Merge `manual` as in the daily run: every fact in the user's bullets survives, and
+  nothing appears twice.
+
+### Step W4: Write and report
+
+```bash
+python3 ~/.claude/skills/magpie/daily.py write --week --date <start> <<'EOF'
+{"moved": ["..."], "blocked": ["..."], "focus": ["..."]}
+EOF
+```
+
+Use the `start` date of the week payload, because `write --week` with no date takes today, not yesterday.
+
+`moved` must not be empty. If the command fails, show the error and stop. Then show the
+weekly note as it is in the file, and one line: which days were filled, which had no
+activity, and what changed compared with the old sections.

@@ -74,6 +74,10 @@ A magpie saw it all: the commits, the sessions, the calls, the mail you sent. Ty
 `/magpie` and it writes **Did:**, **Blocked:** and **Next:** into your note, one
 bullet per project.
 
+`/magpie week` sums up a week. It fills any day of that week that has no daily note,
+then writes **Moved:**, **Still blocked:** and **Focus:** into
+`50 Journal/weekly/YYYY-Www.md` (set the folder with `weekly_dir`).
+
 It steals. It does not forge.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -149,6 +153,7 @@ key is optional, and an unknown key is an error, so a typo fails loudly.
 | `timezone` | system local | the IANA zone that defines "today" |
 | `vault` | `~/vault` | your Obsidian vault |
 | `journal_dir` | `50 Journal/daily` | daily notes folder, inside the vault |
+| `weekly_dir` | `50 Journal/weekly` | weekly notes folder, inside the vault |
 | `template` | `90 Templates/daily.md` | template for a note that does not exist yet |
 | `repos_root` | `~/projects` | every git repo directly under it is read |
 | `extra_repos` | `[]` | more repos, anywhere |

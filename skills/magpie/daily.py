@@ -15,6 +15,7 @@ import daily_mail
 import daily_note
 import daily_sessions
 import daily_vault
+import daily_week
 
 SIZE_LIMIT = 40000
 
@@ -22,6 +23,10 @@ SIZE_LIMIT = 40000
 def _zone(tz):
     """The IANA zone, or the system's local zone when the config gives none."""
     return ZoneInfo(tz) if tz else datetime.now().astimezone().tzinfo
+
+
+def _today(tz):
+    return datetime.now(_zone(tz)).date()
 
 
 def _day_bounds(day, tz):
@@ -165,20 +170,56 @@ def gather(args):
     return cap_size(payload)
 
 
+def week(args):
+    """The week's daily notes, the cards they name, and the weekly note's own text."""
+    vault = Path(args.vault)
+    days, errors = daily_week.read_days(vault, args.date, args.today, args.journal_dir)
+    try:
+        cards = daily_week.cards_named(daily_vault.load_cards(vault), days)
+    except Exception as exc:
+        errors["vault"] = f"{type(exc).__name__}: {exc}"
+        cards = []
+    path = daily_week.note_path(vault, args.date, args.weekly_dir)
+    manual = {key: "" for key, _ in daily_note.WEEKLY}
+    if path.exists():
+        try:
+            manual = daily_note.read_sections(path.read_text(encoding="utf-8"), daily_note.WEEKLY)
+        except ValueError:
+            pass
+    start, end = daily_week.week_bounds(args.date)
+    return {
+        "week": daily_week.week_id(args.date),
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "note_path": str(path),
+        "manual": manual,
+        "days": days,
+        "cards": cards,
+        "errors": errors,
+    }
+
+
 def write(args):
     try:
         sections = json.load(sys.stdin)
     except json.JSONDecodeError as exc:
         print(f"error: bad JSON on stdin: {exc}", file=sys.stderr)
         return 1
-    path = daily_note.note_path(args.vault, args.date, args.journal_dir)
+    if args.week:
+        kind = daily_note.WEEKLY
+        path = daily_week.note_path(args.vault, args.date, args.weekly_dir)
+    else:
+        kind = daily_note.DAILY
+        path = daily_note.note_path(args.vault, args.date, args.journal_dir)
     if path.exists():
         text = path.read_text(encoding="utf-8")
+    elif args.week:
+        text = daily_week.blank(args.date)
     else:
         text = daily_note.from_template(args.vault, args.date, args.template)
     try:
-        old = daily_note.read_sections(text)
-        new = daily_note.replace_sections(text, sections)
+        old = daily_note.read_sections(text, kind)
+        new = daily_note.replace_sections(text, sections, kind)
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -194,7 +235,7 @@ def parse_args(argv):
     sub = parser.add_subparsers(dest="command", required=True)
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--config", type=Path, default=daily_config.DEFAULT_PATH)
-    common.add_argument("--date", type=date.fromisoformat, default=None, help="YYYY-MM-DD, default today")
+    common.add_argument("--date", type=date.fromisoformat, default=None, help="YYYY-MM-DD, default today (yesterday for week)")
     common.add_argument("--tz", default=None)
     common.add_argument("--vault", type=Path, default=None)
 
@@ -207,7 +248,9 @@ def parse_args(argv):
     g.add_argument("--host", default=None)
     g.add_argument("--mail-account", action="append", default=None)
 
-    sub.add_parser("write", parents=[common], help="replace the note sections from JSON on stdin")
+    w = sub.add_parser("write", parents=[common], help="replace the note sections from JSON on stdin")
+    w.add_argument("--week", action="store_true", help="write the weekly note of --date's week")
+    sub.add_parser("week", parents=[common], help="print the week's daily notes as JSON")
     return resolve(parser.parse_args(argv))
 
 
@@ -217,9 +260,11 @@ def resolve(args):
     args.tz = args.tz or cfg["timezone"]
     args.vault = Path(args.vault or cfg["vault"]).expanduser()
     args.journal_dir = cfg["journal_dir"]
+    args.weekly_dir = cfg["weekly_dir"]
     args.template = cfg["template"]
+    args.today = _today(args.tz)
     if args.date is None:
-        args.date = datetime.now(_zone(args.tz)).date()
+        args.date = args.today - timedelta(days=1) if args.command == "week" else args.today
     if args.command == "gather":
         args.repos_root = Path(args.repos_root or cfg["repos_root"]).expanduser()
         if args.extra_repo is None:
@@ -236,6 +281,9 @@ def main(argv=None):
     args = parse_args(argv)
     if args.command == "gather":
         print(json.dumps(gather(args), ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "week":
+        print(json.dumps(week(args), ensure_ascii=False, indent=2))
         return 0
     return write(args)
 

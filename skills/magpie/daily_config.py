@@ -12,6 +12,7 @@ DEFAULTS = {
     "timezone": None,  # IANA name such as "Europe/Paris"; None means the system's local time
     "vault": "~/vault",
     "journal_dir": "50 Journal/daily",
+    "weekly_dir": "50 Journal/weekly",
     "template": "90 Templates/daily.md",
     "repos_root": "~/projects",
     "extra_repos": [],

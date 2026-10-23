@@ -4,7 +4,6 @@ from pathlib import Path
 DAILY = (("did", "**Did:**"), ("blocked", "**Blocked:**"), ("next", "**Next:**"))
 WEEKLY = (("moved", "**Moved:**"), ("blocked", "**Still blocked:**"), ("focus", "**Focus:**"))
 KEYS = tuple(key for key, _ in DAILY)
-MARKERS = tuple(marker for _, marker in DAILY)
 
 
 def note_path(vault, day, journal_dir="50 Journal/daily"):

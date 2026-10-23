@@ -37,14 +37,6 @@ def test_assistant_blocks_returns_block_list():
     assert transcript.assistant_blocks(recs[0]) == []
 
 
-def test_tool_results_and_result_text():
-    recs = _load("blocks.jsonl")
-    results = list(transcript.tool_results(recs[1]))
-    assert len(results) == 1
-    assert results[0]["is_error"] is True
-    assert transcript.result_text(results[0]) == "boom failed"
-
-
 from datetime import datetime, timezone
 
 

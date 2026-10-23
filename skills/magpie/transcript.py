@@ -84,28 +84,3 @@ def assistant_blocks(record):
         return []
     content = _content(record)
     return content if isinstance(content, list) else []
-
-
-def tool_results(record):
-    """Yield tool_result blocks from a user record."""
-    if record.get("type") != "user":
-        return
-    content = _content(record)
-    if isinstance(content, list):
-        for block in content:
-            if isinstance(block, dict) and block.get("type") == "tool_result":
-                yield block
-
-
-def result_text(block):
-    """Flatten a tool_result block's content (str or list) to a string."""
-    content = block.get("content")
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        return "\n".join(
-            part.get("text", "")
-            for part in content
-            if isinstance(part, dict)
-        )
-    return ""

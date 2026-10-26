@@ -1,9 +1,11 @@
 """Read and rewrite the three marked sections of an Obsidian daily or weekly note."""
+import re
 from pathlib import Path
 
 DAILY = (("did", "**Did:**"), ("blocked", "**Blocked:**"), ("next", "**Next:**"))
 WEEKLY = (("moved", "**Moved:**"), ("blocked", "**Still blocked:**"), ("focus", "**Focus:**"))
 KEYS = tuple(key for key, _ in DAILY)
+HEADING = re.compile(r"^#{1,6}\s", re.MULTILINE)
 
 
 def note_path(vault, day, journal_dir="50 Journal/daily"):
@@ -27,12 +29,18 @@ def _positions(text, markers):
     return positions
 
 
+def _tail_start(text, start):
+    """Index of the first heading line after `start`, or the end of the text."""
+    match = HEADING.search(text, start)
+    return match.start() if match else len(text)
+
+
 def read_sections(text, kind=DAILY):
     """Return {key: stripped text under its marker} for the three markers of `kind`."""
     keys = [key for key, _ in kind]
     markers = [marker for _, marker in kind]
     p = _positions(text, markers)
-    bounds = [(p[0], p[1]), (p[1], p[2]), (p[2], len(text))]
+    bounds = [(p[0], p[1]), (p[1], p[2]), (p[2], _tail_start(text, p[2]))]
     return {
         key: text[start + len(marker):end].strip()
         for key, marker, (start, end) in zip(keys, markers, bounds)
@@ -47,7 +55,8 @@ def _render(marker, bullets):
 
 
 def replace_sections(text, sections, kind=DAILY):
-    """Rewrite the three sections from lists of bullets. The title above stays as it is.
+    """Rewrite the three sections from lists of bullets. The title above and any
+    heading below the last section, with its text, stay as they are.
 
     The first section must not be empty. A blank line follows each list, so Obsidian
     does not fold the next marker into the last list item.
@@ -55,6 +64,8 @@ def replace_sections(text, sections, kind=DAILY):
     first = kind[0][0]
     if not sections.get(first):
         raise ValueError(f"{first} section is empty")
-    head = text[: _positions(text, [marker for _, marker in kind])[0]]
+    p = _positions(text, [marker for _, marker in kind])
+    head = text[: p[0]]
+    tail = text[_tail_start(text, p[2]) :]
     parts = [_render(marker, sections.get(key) or []) for key, marker in kind]
-    return head + "\n".join(parts)
+    return head + "\n".join(parts + ([tail] if tail else []))

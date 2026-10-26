@@ -80,3 +80,15 @@ def test_replace_sections_refuses_an_empty_moved():
 def test_the_daily_markers_are_not_found_in_a_weekly_note():
     with pytest.raises(ValueError, match="Did"):
         daily_note.read_sections(WEEK_NOTE)
+
+
+TAILED = NOTE + "\n## Notes\n\nkeep this paragraph\n"
+
+
+def test_read_sections_stops_next_at_the_next_heading():
+    assert daily_note.read_sections(TAILED)["next"] == ""
+
+
+def test_replace_sections_keeps_the_text_below_next():
+    out = daily_note.replace_sections(TAILED, {"did": ["a"], "blocked": [], "next": ["x"]})
+    assert out == "# 2026-10-05\n\n**Did:**\n\n- a\n\n**Blocked:**\n\n**Next:**\n\n- x\n\n## Notes\n\nkeep this paragraph\n"
